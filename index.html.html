@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iBen — Mapeamento Comportamental</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#efefec;
+  --text:#1a1a1a;--text2:#6b6b6b;--text3:#9b9b9b;
+  --border:rgba(0,0,0,.1);--border2:rgba(0,0,0,.18);
+  --green:#1a6b3c;--green-light:#e8f5ee;--green-mid:#9fe1cb;
+  --radius:8px;--radius-lg:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);font-size:14px;line-height:1.5}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--bg);border-right:0.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:0.5px solid var(--border)}
+.logo-mark{display:flex;align-items:center;gap:8px}
+.logo-dot{width:30px;height:30px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px}
+.logo-text{font-size:15px;font-weight:600}
+.logo-sub{font-size:10px;color:var(--text2);margin-top:1px}
+.sidebar-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-section{font-size:10px;color:var(--text3);padding:8px 8px 4px;text-transform:uppercase;letter-spacing:.6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13px;margin-bottom:1px;transition:background .15s;user-select:none}
+.nav-item:hover{background:var(--bg2);color:var(--text)}
+.nav-item.active{background:var(--green-light);color:var(--green);font-weight:500}
+.nav-item i{font-size:16px;width:18px;flex-shrink:0}
+.sidebar-footer{padding:12px 8px;border-top:0.5px solid var(--border)}
+.user-row{display:flex;align-items:center;gap:8px;padding:6px 8px}
+.user-av{width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.user-name{font-size:12px;font-weight:500}
+.user-role{font-size:10px;color:var(--text3)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{padding:14px 24px;background:var(--bg);border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:16px;font-weight:600}
+.page-sub{font-size:11px;color:var(--text2)}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.content{padding:24px;flex:1}
+
+/* BUTTONS */
+.btn{padding:6px 14px;border-radius:var(--radius);border:0.5px solid var(--border2);background:transparent;cursor:pointer;font-size:13px;color:var(--text);display:inline-flex;align-items:center;gap:5px;transition:background .15s;font-family:inherit}
+.btn:hover{background:var(--bg2)}
+.btn-primary{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-primary:hover{background:#155c33}
+.btn-sm{padding:4px 10px;font-size:12px}
+
+/* CARDS & LAYOUT */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.metric-card{background:var(--bg2);border-radius:var(--radius);padding:14px}
+.metric-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.metric-value{font-size:26px;font-weight:600;line-height:1}
+.metric-delta{font-size:11px;color:var(--green);margin-top:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.section-title{font-size:13px;font-weight:600;margin-bottom:12px}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.tag-green{background:#e8f5ee;color:#0f6e56}
+.tag-amber{background:#faeeda;color:#854f0b}
+.tag-red{background:#fcebeb;color:#a32d2d}
+.tag-blue{background:#e6f1fb;color:#185fa5}
+.tag-gray{background:var(--bg2);color:var(--text2)}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;padding:7px 10px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(26,107,60,.1)}
+.form-textarea{resize:vertical}
+
+/* TABLE */
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;padding:8px 12px;border-bottom:0.5px solid var(--border);text-align:left;font-weight:500}
+.table td{padding:10px 12px;border-bottom:0.5px solid var(--border);font-size:13px}
+.table tr:last-child td{border-bottom:none}
+.table tbody tr:hover td{background:var(--bg2)}
+
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--green);transition:width .4s}
+
+/* SCORE BARS */
+.score-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.score-name{font-size:12px;color:var(--text2);width:110px;flex-shrink:0}
+.score-track{flex:1;height:7px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.score-fill2{height:100%;border-radius:4px}
+.score-val{font-size:12px;font-weight:600;width:32px;text-align:right}
+.score-lv{font-size:10px;color:var(--text3);width:90px;text-align:right;flex-shrink:0}
+
+/* FILTER */
+.filter-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.filter-chip{padding:5px 12px;border-radius:20px;border:0.5px solid var(--border2);font-size:12px;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.filter-chip.active,.filter-chip:hover{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* LIKERT */
+.question-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:10px}
+.q-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.q-num{font-size:11px;color:var(--text3);flex-shrink:0;padding-top:2px}
+.q-text{font-size:14px;line-height:1.5;flex:1}
+.q-badges{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.likert{display:flex;gap:5px}
+.likert-btn{flex:1;padding:8px 4px;border:0.5px solid var(--border2);border-radius:var(--radius);text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s;background:transparent;user-select:none}
+.likert-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
+.likert-btn.sel{background:var(--green);color:#fff;border-color:var(--green)}
+.likert-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:5px}
+
+/* COMPETÊNCIA ROW */
+.comp-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.comp-row:last-child{border-bottom:none}
+
+/* WEIGHT SLIDER */
+.weight-slider{display:flex;align-items:center;gap:8px;flex:1;max-width:160px}
+.weight-slider input[type=range]{flex:1;accent-color:var(--green)}
+.weight-num{font-size:12px;font-weight:600;width:16px;text-align:center;color:var(--green)}
+
+/* TOGGLE */
+.toggle-group{display:flex;gap:4px}
+.toggle-btn{padding:3px 10px;border-radius:20px;border:0.5px solid var(--border2);font-size:11px;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.toggle-btn.active{background:var(--green-light);color:var(--green);border-color:var(--green-mid)}
+
+/* TABS */
+.tab-row{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:20px}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:all .15s}
+.tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600}
+
+/* TIMELINE */
+.history-timeline{position:relative;padding-left:22px}
+.timeline-line{position:absolute;left:7px;top:12px;bottom:12px;width:1px;background:var(--border2)}
+.timeline-item{position:relative;margin-bottom:14px}
+.timeline-dot{position:absolute;left:-19px;top:6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bg);box-shadow:0 0 0 1px var(--border2)}
+.timeline-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px}
+
+/* EVOLUTION BARS */
+.evo-bar{height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600;min-width:32px;padding:0 6px}
+
+/* RADAR LABELS */
+.rl{font-size:9.5px;fill:var(--text2);font-family:-apple-system,sans-serif}
+
+/* ALERT */
+.alert{background:var(--green-light);border:0.5px solid var(--green-mid);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:#0f6e56;display:flex;align-items:center;gap:8px;margin-bottom:16px}
+
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg3)}
+.login-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:40px;width:380px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.login-badge{width:52px;height:52px;background:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;margin:0 auto 14px}
+.role-tabs{display:flex;gap:3px;background:var(--bg2);padding:3px;border-radius:var(--radius);margin-bottom:18px}
+.role-tab{flex:1;text-align:center;padding:6px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);transition:all .15s;user-select:none}
+.role-tab.active{background:var(--bg);color:var(--green);font-weight:600}
+
+/* PDF PAGE PREVIEW */
+.pdf-page{background:#fff;color:#111;border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px}
+.pdf-header{border-bottom:3px solid var(--green);padding-bottom:16px;margin-bottom:20px}
+.pdf-sec{margin-bottom:18px}
+.pdf-sec-title{font-size:12px;font-weight:700;color:var(--green);border-left:3px solid var(--green);padding-left:8px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{width:180px}
+  .grid-4{grid-template-columns:1fr 1fr}
+  .grid-2{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .sidebar{display:none}
+  .grid-4{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="appRoot">
+
+<!-- ══════════════════════════════════════
+     TELA 01 — LOGIN
+══════════════════════════════════════ -->
+<div id="loginScreen" style="width:100%;display:flex">
+  <div class="login-wrap" style="width:100%">
+    <div class="login-card">
+      <div style="text-align:center;margin-bottom:28px">
+        <div class="login-badge">i</div>
+        <div style="font-size:20px;font-weight:700">iBen</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">Mapeamento Comportamental</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Ferramenta de apoio à gestão de talentos</div>
+      </div>
+
+      <div class="role-tabs" id="roleTabs">
+        <div class="role-tab active" onclick="selectRole('rh',this)">RH</div>
+        <div class="role-tab" onclick="selectRole('gestor',this)">Gestor</div>
+        <div class="role-tab" onclick="selectRole('colaborador',this)">Colaborador</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input class="form-input" id="loginEmail" type="email" value="ana.silva@empresa.com.br">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input class="form-input" id="loginSenha" type="password" value="••••••••">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px;font-size:14px" onclick="doLogin()">
+        <i class="ti ti-login"></i> Entrar no Sistema
+      </button>
+      <div style="font-size:10px;color:var(--text3);text-align:center;margin-top:20px;line-height:1.7;border-top:0.5px solid var(--border);padding-top:14px">
+        <i class="ti ti-shield-check" style="font-size:12px"></i>
+        Instrumento corporativo de apoio à decisão.<br>
+        Não realiza diagnóstico psicológico. Não substitui avaliação por psicólogo.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebarEl" class="sidebar" style="display:none">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-dot">i</div>
+      <div>
+        <div class="logo-text">iBen</div>
+        <div class="logo-sub">Modelo Comportamental</div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" data-page="dashboard" onclick="nav('dashboard',this)">
+      <i class="ti ti-layout-dashboard"></i> Dashboard
+    </div>
+    <div class="nav-item" data-page="avaliacoes" onclick="nav('avaliacoes',this)">
+      <i class="ti ti-clipboard-list"></i> Avaliações
+    </div>
+    <div class="nav-item" data-page="questionario" onclick="nav('questionario',this)">
+      <i class="ti ti-forms"></i> Questionário
+    </div>
+    <div class="nav-section">Configuração</div>
+    <div class="nav-item" data-page="cargos" onclick="nav('cargos',this)">
+      <i class="ti ti-briefcase"></i> Cargos
+    </div>
+    <div class="nav-item" data-page="relatorio" onclick="nav('relatorio',this)">
+      <i class="ti ti-file-analytics"></i> Relatório
+    </div>
+    <div class="nav-section">Gestão</div>
+    <div class="nav-item" data-page="historico" onclick="nav('historico',this)">
+      <i class="ti ti-clock-history"></i> Histórico
+    </div>
+    <div class="nav-item" data-page="admin" onclick="nav('admin',this)">
+      <i class="ti ti-settings"></i> Admin
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av" id="userAv">AS</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name" id="userName">Ana Silva</div>
+        <div class="user-role" id="userRoleLabel">Analista de RH</div>
+      </div>
+      <i class="ti ti-logout" style="cursor:pointer;font-size:15px;color:var(--text3)" title="Sair" onclick="doLogout()"></i>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="mainEl" class="main" style="display:none">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div class="page-sub" id="pageSub">Visão geral — maio 2025</div>
+    </div>
+    <div class="topbar-actions" id="topbarActions">
+      <button class="btn" onclick="nav('questionario',null)"><i class="ti ti-plus"></i> Nova Avaliação</button>
+      <button class="btn btn-primary" onclick="nav('relatorio',null)"><i class="ti ti-file-analytics"></i> Ver Relatório</button>
+    </div>
+  </div>
+  <div class="content" id="pageContent"></div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+/* ═══════════════════════════════════════
+   DADOS GLOBAIS
+═══════════════════════════════════════ */
+var currentRole = 'rh';
+var answers = {};
+var charts = {};
+
+var ROLES = {
+  rh:          {name:'Ana Silva',     role:'Analista de RH',  av:'AS'},
+  gestor:      {name:'Pedro Gomes',   role:'Gestor — TI',     av:'PG'},
+  colaborador: {name:'Carlos Mendes', role:'Colaborador',     av:'CM'}
+};
+
+var QUESTIONS = [
+  {n:1,  text:"Gosto de testar formas novas de trabalhar",                    dim:"Abertura",   comp:"Criatividade",  rev:false},
+  {n:2,  text:"Mudanças me estimulam e geram energia",                        dim:"Abertura",   comp:"Criatividade",  rev:false},
+  {n:3,  text:"Prefiro manter as rotinas já conhecidas",                      dim:"Abertura",   comp:"Criatividade",  rev:true},
+  {n:4,  text:"Busco conhecimento além da minha função atual",                dim:"Abertura",   comp:"Análise",       rev:false},
+  {n:5,  text:"Fico confortável em ambientes de incerteza",                   dim:"Abertura",   comp:"Autonomia",     rev:false},
+  {n:6,  text:"Proponho melhorias nos processos em que atuo",                 dim:"Abertura",   comp:"Criatividade",  rev:false},
+  {n:7,  text:"Sinto desconforto quando mudo de projeto frequentemente",      dim:"Abertura",   comp:"Estabilidade",  rev:true},
+  {n:8,  text:"Experimento novas abordagens antes de seguir o padrão",        dim:"Abertura",   comp:"Autonomia",     rev:false},
+  {n:9,  text:"Leio e me atualizo regularmente sobre minha área",             dim:"Abertura",   comp:"Análise",       rev:false},
+  {n:10, text:"Dificilmente mudo meu ponto de vista",                         dim:"Abertura",   comp:"Afabilidade",   rev:true},
+  {n:11, text:"Cumpro prazos de forma consistente",                           dim:"Consciência",comp:"Execução",      rev:false},
+  {n:12, text:"Planejo minhas atividades com antecedência",                   dim:"Consciência",comp:"Planejamento",  rev:false},
+  {n:13, text:"Finalizo todas as tarefas antes de iniciar novas",             dim:"Consciência",comp:"Organização",   rev:false},
+  {n:14, text:"Costumo deixar atividades inacabadas",                         dim:"Consciência",comp:"Execução",      rev:true},
+  {n:15, text:"Mantenho meu espaço de trabalho organizado",                   dim:"Consciência",comp:"Organização",   rev:false},
+  {n:16, text:"Estabeleço prioridades claras para cada dia",                  dim:"Consciência",comp:"Planejamento",  rev:false},
+  {n:17, text:"Acompanho indicadores e resultados regularmente",              dim:"Consciência",comp:"Análise",       rev:false},
+  {n:18, text:"Documento processos e aprendizados",                           dim:"Consciência",comp:"Organização",   rev:false},
+  {n:19, text:"Esqueço compromissos com frequência",                          dim:"Consciência",comp:"Execução",      rev:true},
+  {n:20, text:"Reviso minhas entregas antes de finalizar",                    dim:"Consciência",comp:"Execução",      rev:false},
+  {n:21, text:"Me preparo para reuniões com antecedência",                    dim:"Consciência",comp:"Planejamento",  rev:false},
+  {n:22, text:"Tenho dificuldade em seguir procedimentos formais",            dim:"Consciência",comp:"Organização",   rev:true},
+  {n:23, text:"Tenho facilidade em iniciar conversas com pessoas novas",      dim:"Extroversão",comp:"Comunicação",   rev:false},
+  {n:24, text:"Gosto de apresentar ideias para grupos",                       dim:"Extroversão",comp:"Comunicação",   rev:false},
+  {n:25, text:"Prefiro evitar exposição em ambientes públicos",               dim:"Extroversão",comp:"Comunicação",   rev:true},
+  {n:26, text:"Tenho energia para interagir com muitas pessoas",              dim:"Extroversão",comp:"Relacionamento",rev:false},
+  {n:27, text:"Lidero conversas e puxo discussões",                           dim:"Extroversão",comp:"Liderança",     rev:false},
+  {n:28, text:"Fico sobrecarregado após muito tempo com pessoas",             dim:"Extroversão",comp:"Estabilidade",  rev:true},
+  {n:29, text:"Me sinto à vontade em negociações presenciais",                dim:"Extroversão",comp:"Negociação",    rev:false},
+  {n:30, text:"Influencio o clima emocional do grupo",                        dim:"Extroversão",comp:"Influência",    rev:false},
+  {n:31, text:"Evito conflitos mesmo quando discordo",                        dim:"Extroversão",comp:"Comunicação",   rev:true},
+  {n:32, text:"Expresso minhas opiniões com clareza",                         dim:"Extroversão",comp:"Comunicação",   rev:false},
+  {n:33, text:"Escuto antes de tirar conclusões",                             dim:"Afabilidade",comp:"Relacionamento",rev:false},
+  {n:34, text:"Busco consenso antes de decidir",                              dim:"Afabilidade",comp:"Relacionamento",rev:false},
+  {n:35, text:"Prefiro resolver problemas de forma independente",             dim:"Afabilidade",comp:"Autonomia",     rev:true},
+  {n:36, text:"Me preocupo com o bem-estar dos colegas",                      dim:"Afabilidade",comp:"Relacionamento",rev:false},
+  {n:37, text:"Ofereço ajuda sem ser solicitado",                             dim:"Afabilidade",comp:"Relacionamento",rev:false},
+  {n:38, text:"Fico incomodado quando preciso depender de outros",            dim:"Afabilidade",comp:"Autonomia",     rev:true},
+  {n:39, text:"Reconheço quando estou errado com facilidade",                 dim:"Afabilidade",comp:"Afabilidade",   rev:false},
+  {n:40, text:"Valorizo opiniões diferentes da minha",                        dim:"Afabilidade",comp:"Afabilidade",   rev:false},
+  {n:41, text:"Tenho dificuldade em aceitar críticas",                        dim:"Afabilidade",comp:"Afabilidade",   rev:true},
+  {n:42, text:"Construo relacionamentos de longo prazo",                      dim:"Afabilidade",comp:"Relacionamento",rev:false},
+  {n:43, text:"Mantenho calma em situações de pressão",                       dim:"Estabilidade",comp:"Execução",     rev:false},
+  {n:44, text:"Recebo feedback construtivo com abertura",                     dim:"Estabilidade",comp:"Afabilidade",  rev:false},
+  {n:45, text:"Mudanças repentinas me desestabilizam",                        dim:"Estabilidade",comp:"Autonomia",    rev:true},
+  {n:46, text:"Consigo tomar decisões mesmo sob pressão",                     dim:"Estabilidade",comp:"Execução",     rev:false},
+  {n:47, text:"Me recupero rapidamente de contratempos",                      dim:"Estabilidade",comp:"Estabilidade", rev:false},
+  {n:48, text:"Fico ansioso quando há muitas incertezas",                     dim:"Estabilidade",comp:"Estabilidade", rev:true},
+  {n:49, text:"Controlo minhas emoções em conflitos",                         dim:"Estabilidade",comp:"Relacionamento",rev:false},
+  {n:50, text:"Mantenho desempenho consistente mesmo em crises",              dim:"Estabilidade",comp:"Execução",     rev:false},
+  {n:51, text:"Fico reativo quando as coisas fogem do plano",                 dim:"Estabilidade",comp:"Estabilidade", rev:true},
+  {n:52, text:"Demonstro equilíbrio emocional para a equipe",                 dim:"Estabilidade",comp:"Liderança",    rev:false},
+  {n:53, text:"Gosto de trabalhar com processos estruturados",                dim:"Estilo",     comp:"Organização",   rev:false},
+  {n:54, text:"Reviso minhas entregas antes de submeter",                     dim:"Estilo",     comp:"Execução",      rev:false},
+  {n:55, text:"Organizo minhas prioridades antes de começar",                 dim:"Estilo",     comp:"Planejamento",  rev:false},
+  {n:56, text:"Document meu trabalho de forma sistemática",                   dim:"Estilo",     comp:"Organização",   rev:false},
+  {n:57, text:"Prefiro improviso à execução de roteiros",                     dim:"Estilo",     comp:"Planejamento",  rev:true},
+  {n:58, text:"Monitoro indicadores de desempenho regularmente",              dim:"Estilo",     comp:"Análise",       rev:false},
+  {n:59, text:"Detesto trabalho repetitivo",                                  dim:"Estilo",     comp:"Execução",      rev:true},
+  {n:60, text:"Consigo sustentar foco por longos períodos",                   dim:"Estilo",     comp:"Execução",      rev:false},
+  {n:61, text:"Deixo claro para minha equipe o que espero deles",             dim:"Liderança",  comp:"Comunicação",   rev:false},
+  {n:62, text:"Delego tarefas com clareza e confiança",                       dim:"Liderança",  comp:"Liderança",     rev:false},
+  {n:63, text:"Acompanho resultados sem controlar excessivamente",            dim:"Liderança",  comp:"Liderança",     rev:false},
+  {n:64, text:"Evito tomar decisões difíceis",                                dim:"Liderança",  comp:"Liderança",     rev:true},
+  {n:65, text:"Desenvolvo ativamente as pessoas ao meu redor",                dim:"Liderança",  comp:"Liderança",     rev:false},
+  {n:66, text:"Crio um ambiente seguro para que a equipe se expresse",        dim:"Liderança",  comp:"Relacionamento",rev:false},
+  {n:67, text:"Reconheço publicamente os bons resultados da equipe",          dim:"Liderança",  comp:"Influência",    rev:false},
+  {n:68, text:"Tenho dificuldade em dar feedbacks negativos",                 dim:"Liderança",  comp:"Comunicação",   rev:true},
+  {n:69, text:"Inspiro confiança pelo meu exemplo",                           dim:"Liderança",  comp:"Liderança",     rev:false},
+  {n:70, text:"Defendo minha equipe em situações de pressão",                 dim:"Liderança",  comp:"Liderança",     rev:false},
+  {n:71, text:"Busco desafios que me tirem da zona de conforto",              dim:"Motivação",  comp:"Autonomia",     rev:false},
+  {n:72, text:"Quero crescer profissionalmente de forma contínua",            dim:"Motivação",  comp:"Criatividade",  rev:false},
+  {n:73, text:"Reconhecimento me motiva mais do que salário",                 dim:"Motivação",  comp:"Influência",    rev:false},
+  {n:74, text:"Sinto que meu trabalho tem propósito claro",                   dim:"Motivação",  comp:"Execução",      rev:false},
+  {n:75, text:"Fico desmotivado com tarefas repetitivas",                     dim:"Motivação",  comp:"Criatividade",  rev:true},
+  {n:76, text:"Me envolvo com projetos além da minha função",                 dim:"Motivação",  comp:"Autonomia",     rev:false},
+  {n:77, text:"Busco feedback para evoluir constantemente",                   dim:"Motivação",  comp:"Afabilidade",   rev:false},
+  {n:78, text:"Prefiro estabilidade profissional à promoção",                 dim:"Motivação",  comp:"Autonomia",     rev:true},
+  {n:79, text:"Realizo-me quando vejo impacto no meu trabalho",               dim:"Motivação",  comp:"Execução",      rev:false},
+  {n:80, text:"Invisto no meu desenvolvimento mesmo fora do horário",         dim:"Motivação",  comp:"Criatividade",  rev:false}
+];
+
+var CARGO = {
+  nome:"Gerente de Projetos", area:"Tecnologia", gestor:"Maria Fernandes",
+  objetivo:"Conduzir projetos de tecnologia garantindo entregas no prazo e alinhadas às metas estratégicas.",
+  competencias:[
+    {name:"Planejamento",  peso:5, tipo:"Obrigatória", ideal:90},
+    {name:"Liderança",     peso:5, tipo:"Obrigatória", ideal:85},
+    {name:"Comunicação",   peso:4, tipo:"Obrigatória", ideal:80},
+    {name:"Análise",       peso:4, tipo:"Obrigatória", ideal:75},
+    {name:"Resolução",     peso:3, tipo:"Desejável",   ideal:70},
+    {name:"Organização",   peso:3, tipo:"Desejável",   ideal:70},
+    {name:"Negociação",    peso:3, tipo:"Desejável",   ideal:65},
+    {name:"Autonomia",     peso:2, tipo:"Desejável",   ideal:60}
+  ]
+};
+
+var AVALIACOES = [
+  {id:1,nome:"Carlos Mendes",   cargo:"Gerente de Projetos",area:"Tecnologia", data:"12/05/2025",status:"Concluída",    aderencia:88,perfil:"Indicado"},
+  {id:2,nome:"Fernanda Costa",  cargo:"Analista Sênior",   area:"Marketing",  data:"08/05/2025",status:"Concluída",    aderencia:72,perfil:"Parcial"},
+  {id:3,nome:"Roberto Lima",    cargo:"Coordenador",        area:"Vendas",     data:"15/05/2025",status:"Em andamento",aderencia:null,perfil:"–"},
+  {id:4,nome:"Juliana Alves",   cargo:"Gerente de Projetos",area:"Tecnologia", data:"10/05/2025",status:"Concluída",    aderencia:94,perfil:"Indicado"},
+  {id:5,nome:"Marcos Rocha",    cargo:"Analista Jr",        area:"Financeiro", data:"05/05/2025",status:"Concluída",    aderencia:55,perfil:"Não Indicado"}
+];
+
+var PROFILE = {
+  nome:"Carlos Mendes", cargo:"Gerente de Projetos",
+  big5:{abertura:82,consciencia:88,extroversao:74,afabilidade:71,estabilidade:79},
+  competencias:[
+    {name:"Planejamento",score:85,ideal:90},{name:"Liderança",score:82,ideal:85},
+    {name:"Comunicação", score:78,ideal:80},{name:"Análise",  score:76,ideal:75},
+    {name:"Resolução",   score:80,ideal:70},{name:"Organização",score:74,ideal:70},
+    {name:"Negociação",  score:68,ideal:65},{name:"Autonomia",score:72,ideal:60}
+  ],
+  aderencia:88
+};
+
+/* ═══════════════════════════════════════
+   AUTH
+═══════════════════════════════════════ */
+function selectRole(r,el){
+  currentRole = r;
+  document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function doLogin(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('sidebarEl').style.display='flex';
+  document.getElementById('mainEl').style.display='flex';
+  var r = ROLES[currentRole];
+  document.getElementById('userAv').textContent = r.av;
+  document.getElementById('userName').textContent = r.name;
+  document.getElementById('userRoleLabel').textContent = r.role;
+  nav('dashboard', document.querySelector('[data-page="dashboard"]'));
+}
+
+function doLogout(){
+  destroyCharts();
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('sidebarEl').style.display='none';
+  document.getElementById('mainEl').style.display='none';
+}
+
+function destroyCharts(){
+  Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}});
+  charts={};
+}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+function nav(page, el){
+  destroyCharts();
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else {
+    var found = document.querySelector('[data-page="'+page+'"]');
+    if(found) found.classList.add('active');
+  }
+
+  var meta = {
+    dashboard:   ['Dashboard','Visão geral — maio 2025'],
+    avaliacoes:  ['Avaliações','Gestão de perfis comportamentais'],
+    questionario:['Questionário','Aplicação — Carlos Mendes (80 perguntas)'],
+    cargos:      ['Cargos','Perfis ideais por função'],
+    relatorio:   ['Relatório','Resultado — Carlos Mendes'],
+    historico:   ['Histórico','Evolução longitudinal'],
+    admin:       ['Administração','Configurações do sistema']
+  };
+  var m = meta[page] || ['–',''];
+  document.getElementById('pageTitle').textContent = m[0];
+  document.getElementById('pageSub').textContent = m[1];
+
+  var actions = document.getElementById('topbarActions');
+  if(page==='questionario'){
+    actions.innerHTML='<span style="font-size:12px;color:var(--text2)">Progresso: <b style="color:var(--green)" id="progressLabel">5/80</b></span>';
+  } else if(page==='relatorio'){
+    actions.innerHTML='<button class="btn btn-primary" onclick="alert(\'PDF gerado! Integre com jsPDF ou Puppeteer para PDF real.\')"><i class="ti ti-file-download"></i> Baixar PDF</button>';
+  } else {
+    actions.innerHTML='<button class="btn" onclick="nav(\'questionario\',null)"><i class="ti ti-plus"></i> Nova Avaliação</button><button class="btn btn-primary" onclick="nav(\'relatorio\',null)"><i class="ti ti-file-analytics"></i> Relatório</button>';
+  }
+
+  var renders = {dashboard:renderDashboard,avaliacoes:renderAvaliacoes,questionario:renderQuestionario,cargos:renderCargos,relatorio:renderRelatorio,historico:renderHistorico,admin:renderAdmin};
+  if(renders[page]) renders[page]();
+}
+
+/* ═══════════════════════════════════════
+   TELA 02 — DASHBOARD
+═══════════════════════════════════════ */
+function renderDashboard(){
+  var pc = document.getElementById('pageContent');
+  pc.innerHTML = `
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="metric-card"><div class="metric-label">Total avaliações</div><div class="metric-value">127</div><div class="metric-delta"><i class="ti ti-trending-up" style="font-size:11px"></i> +18% vs mês anterior</div></div>
+    <div class="metric-card"><div class="metric-label">Este mês</div><div class="metric-value">23</div><div class="metric-delta"><i class="ti ti-trending-up" style="font-size:11px"></i> 5 novas esta semana</div></div>
+    <div class="metric-card"><div class="metric-label">Perfis indicados</div><div class="metric-value">61<span style="font-size:14px">%</span></div><div class="metric-delta" style="color:#854f0b"><i class="ti ti-trending-down" style="font-size:11px"></i> −3% vs mai/24</div></div>
+    <div class="metric-card"><div class="metric-label">Média aderência</div><div class="metric-value">76<span style="font-size:14px">%</span></div><div class="metric-delta">Boa aderência geral</div></div>
+  </div>
+
+  <div class="filter-row">
+    <button class="filter-chip active" onclick="toggleChip(this)">Todas as áreas</button>
+    <button class="filter-chip" onclick="toggleChip(this)">Tecnologia</button>
+    <button class="filter-chip" onclick="toggleChip(this)">Marketing</button>
+    <button class="filter-chip" onclick="toggleChip(this)">Vendas</button>
+    <button class="filter-chip" onclick="toggleChip(this)">Financeiro</button>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="section-title">Distribuição de perfis</div>
+      <div style="position:relative;height:200px"><canvas id="chartDonut" role="img" aria-label="Distribuição de perfis comportamentais: Predominante 28%, Consistente 45%, Ocasional 20%, Pouco obs. 7%">Predominante 28%, Consistente 45%, Ocasional 20%, Pouco obs. 7%</canvas></div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:11px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#1a6b3c;flex-shrink:0"></span>Predominante 28%</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#5dcaa5;flex-shrink:0"></span>Consistente 45%</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#fac775;flex-shrink:0"></span>Ocasional 20%</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#f09595;flex-shrink:0"></span>Pouco obs. 7%</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Competências mais fortes (média geral)</div>
+      <div style="position:relative;height:200px"><canvas id="chartBar" role="img" aria-label="Competências mais fortes: Execução 83, Organização 79, Análise 77, Comunicação 74, Relacionamento 72">Execução 83, Organização 79, Análise 77, Comunicação 74, Relacionamento 72</canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Aderência média por área</div>
+    <div style="position:relative;height:160px"><canvas id="chartArea" role="img" aria-label="Aderência por área: Tecnologia 82%, Marketing 71%, Vendas 69%, Financeiro 78%, Operações 74%">Tecnologia 82%, Marketing 71%, Vendas 69%, Financeiro 78%, Operações 74%</canvas></div>
+  </div>`;
+
+  setTimeout(()=>{
+    var el1=document.getElementById('chartDonut');
+    var el2=document.getElementById('chartBar');
+    var el3=document.getElementById('chartArea');
+    if(el1) charts.donut=new Chart(el1,{type:'doughnut',data:{labels:['Predominante','Consistente','Ocasional','Pouco obs.'],datasets:[{data:[28,45,20,7],backgroundColor:['#1a6b3c','#5dcaa5','#fac775','#f09595'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    if(el2) charts.bar=new Chart(el2,{type:'bar',data:{labels:['Execução','Organização','Análise','Comunicação','Relacionamento'],datasets:[{data:[83,79,77,74,72],backgroundColor:'#1a6b3c',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{max:100,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11}}},y:{ticks:{font:{size:11}}}}}});
+    if(el3) charts.area=new Chart(el3,{type:'bar',data:{labels:['Tecnologia','Marketing','Vendas','Financeiro','Operações'],datasets:[{data:[82,71,69,78,74],backgroundColor:['#1a6b3c','#9fe1cb','#9fe1cb','#5dcaa5','#9fe1cb'],borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{max:100,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11},callback:v=>v+'%'}},x:{ticks:{font:{size:11}}}}}});
+  },80);
+}
+
+function toggleChip(el){
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ═══════════════════════════════════════
+   TELA 02b — AVALIAÇÕES
+═══════════════════════════════════════ */
+function renderAvaliacoes(){
+  var rows = AVALIACOES.map(a=>{
+    var atag = a.aderencia ? (a.aderencia>=90?'tag-green':a.aderencia>=60?'tag-amber':'tag-red') : 'tag-gray';
+    var ptag = a.perfil==='Indicado'?'tag-green':a.perfil==='Parcial'?'tag-amber':a.perfil==='Não Indicado'?'tag-red':'tag-gray';
+    var stag = a.status==='Concluída'?'tag-green':'tag-blue';
+    return `<tr>
+      <td><div style="font-weight:600">${a.nome}</div><div style="font-size:11px;color:var(--text2)">${a.area}</div></td>
+      <td>${a.cargo}</td>
+      <td><span class="tag ${stag}">${a.status}</span></td>
+      <td>${a.data}</td>
+      <td>${a.aderencia?`<span class="tag ${atag}">${a.aderencia}%</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+      <td><span class="tag ${ptag}">${a.perfil}</span></td>
+      <td><button class="btn btn-sm" onclick="nav('relatorio',null)"><i class="ti ti-file-analytics"></i></button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pageContent').innerHTML = `
+  <div class="alert"><i class="ti ti-shield-check"></i> Instrumento corporativo. Não realiza diagnóstico psicológico.</div>
+  <div class="filter-row">
+    <input class="form-input" style="max-width:240px" placeholder="Buscar colaborador…">
+    <select class="form-select" style="max-width:150px"><option>Todos os status</option><option>Concluída</option><option>Em andamento</option></select>
+    <select class="form-select" style="max-width:150px"><option>Todas as áreas</option><option>Tecnologia</option><option>Marketing</option><option>Vendas</option></select>
+    <button class="btn btn-primary" onclick="nav('questionario',null)"><i class="ti ti-plus"></i> Nova avaliação</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="table">
+      <thead><tr><th>Colaborador</th><th>Cargo</th><th>Status</th><th>Data</th><th>Aderência</th><th>Parecer</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════
+   TELA 04 — QUESTIONÁRIO
+═══════════════════════════════════════ */
+var qPage = 0; // 5 perguntas por página
+var QS_PER_PAGE = 5;
+
+function renderQuestionario(){
+  var start = qPage * QS_PER_PAGE;
+  var end   = Math.min(start + QS_PER_PAGE, QUESTIONS.length);
+  var qs    = QUESTIONS.slice(start, end);
+  var total = QUESTIONS.length;
+
+  var dimColors = {Abertura:'#1a6b3c',Consciência:'#5dcaa5',Extroversão:'#185fa5',Afabilidade:'#854f0b',Estabilidade:'#0f6e56',Estilo:'#533ab7',Liderança:'#993556',Motivação:'#993c1d'};
+
+  var qCards = qs.map(q=>{
+    var dc = dimColors[q.dim] || '#666';
+    var sel = answers[q.n];
+    var btns = [1,2,3,4,5].map(v=>`<div class="likert-btn${sel===v?' sel':''}" onclick="setAns(${q.n},${v},this)">${v}</div>`).join('');
+    var revBadge = q.rev ? `<span class="tag tag-amber" style="font-size:10px">Reversa</span>` : '';
+    return `<div class="question-card">
+      <div class="q-header">
+        <div class="q-num">Q${q.n}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="q-badges">
+          <span class="tag" style="background:${dc}22;color:${dc};font-size:10px">${q.dim}</span>
+          ${revBadge}
+        </div>
+      </div>
+      <div class="likert">${btns}</div>
+      <div class="likert-labels"><span>Discordo totalmente</span><span>Neutro</span><span>Concordo totalmente</span></div>
+    </div>`;
+  }).join('');
+
+  var answered = Object.keys(answers).length;
+  var pct = Math.round((answered/total)*100);
+
+  document.getElementById('pageContent').innerHTML = `
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px">
+          <span>Progresso geral</span><span>${answered} de ${total} respondidas</span>
+        </div>
+        <div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div style="font-size:16px;font-weight:700;color:var(--green)">${pct}%</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+      ${Object.entries({Abertura:'#1a6b3c',Consciência:'#5dcaa5',Extroversão:'#185fa5',Afabilidade:'#854f0b',Estabilidade:'#0f6e56',Estilo:'#533ab7',Liderança:'#993556',Motivação:'#993c1d'}).map(([d,c])=>`<span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:${c}"></span>${d}</span>`).join('')}
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Página ${qPage+1} de ${Math.ceil(total/QS_PER_PAGE)} — perguntas ${start+1} a ${end}</div>
+  ${qCards}
+  <div style="display:flex;justify-content:space-between;margin-top:8px">
+    <button class="btn" onclick="qNav(-1)" ${qPage===0?'disabled style="opacity:.4;cursor:not-allowed"':''}>
+      <i class="ti ti-arrow-left"></i> Anterior
+    </button>
+    <button class="btn btn-primary" onclick="qNav(1)">
+      ${end>=total?'Ver Resultado <i class="ti ti-chart-radar"></i>':'Próximo <i class="ti ti-arrow-right"></i>'}
+    </button>
+  </div>`;
+}
+
+function setAns(n,v,el){
+  answers[n]=v;
+  var card=el.closest('.question-card');
+  card.querySelectorAll('.likert-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  var answered=Object.keys(answers).length;
+  var lbl=document.getElementById('progressLabel');
+  if(lbl) lbl.textContent=answered+'/80';
+}
+
+function qNav(dir){
+  var total=QUESTIONS.length;
+  var maxPage=Math.ceil(total/QS_PER_PAGE)-1;
+  if(dir===1 && qPage>=maxPage){ nav('relatorio',null); return; }
+  qPage=Math.max(0,Math.min(maxPage,qPage+dir));
+  renderQuestionario();
+}
+
+/* ═══════════════════════════════════════
+   TELA 03 — CARGOS
+═══════════════════════════════════════ */
+function renderCargos(){
+  var compRows = CARGO.competencias.map((c,i)=>`
+  <div class="comp-row">
+    <span style="font-size:13px;flex:1">${c.name}</span>
+    <div class="toggle-group">
+      <button class="toggle-btn ${c.tipo==='Obrigatória'?'active':''}" onclick="setTipo(${i},'Obrigatória',this)">Obrigatória</button>
+      <button class="toggle-btn ${c.tipo==='Desejável'?'active':''}" onclick="setTipo(${i},'Desejável',this)">Desejável</button>
+    </div>
+    <div class="weight-slider">
+      <input type="range" min="1" max="5" step="1" value="${c.peso}" oninput="this.nextElementSibling.textContent=this.value">
+      <span class="weight-num">${c.peso}</span>
+    </div>
+    <span style="font-size:12px;color:var(--text2);width:60px;text-align:right">Meta: ${c.ideal}%</span>
+  </div>`).join('');
+
+  document.getElementById('pageContent').innerHTML = `
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="section-title">Dados do cargo</div>
+      <div class="form-group"><label class="form-label">Nome do cargo</label><input class="form-input" value="${CARGO.nome}"></div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Área</label>
+          <select class="form-select"><option>Tecnologia</option><option>Marketing</option><option>Vendas</option><option>Financeiro</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Gestor responsável</label><input class="form-input" value="${CARGO.gestor}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Objetivo do cargo</label>
+        <textarea class="form-textarea" rows="3">${CARGO.objetivo}</textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Perfil ideal — radar</div>
+      <svg viewBox="0 0 240 220" width="100%" role="img" aria-label="Radar do perfil ideal do cargo">
+        ${buildRadar(CARGO.competencias.map(c=>c.ideal), PROFILE.competencias.map(c=>c.score), 240, 110, 80)}
+      </svg>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin-bottom:0">Competências e pesos</div>
+      <button class="btn btn-sm"><i class="ti ti-plus"></i> Adicionar</button>
+    </div>
+    <div style="display:flex;gap:8px;font-size:11px;color:var(--text2);padding:0 0 8px;border-bottom:0.5px solid var(--border);margin-bottom:2px">
+      <span style="flex:1">Competência</span><span style="width:160px;text-align:center">Classificação</span>
+      <span style="width:160px;text-align:center">Peso (1–5)</span><span style="width:60px;text-align:right">Meta</span>
+    </div>
+    ${compRows}
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn">Cancelar</button>
+      <button class="btn btn-primary" onclick="alert('✅ Perfil ideal salvo com sucesso!')"><i class="ti ti-check"></i> Salvar Perfil Ideal</button>
+    </div>
+  </div>`;
+}
+
+function setTipo(i,tipo,el){
+  CARGO.competencias[i].tipo=tipo;
+  el.closest('.toggle-group').querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ═══════════════════════════════════════
+   RADAR SVG HELPER
+═══════════════════════════════════════ */
+function buildRadar(data1, data2, w, cy, r){
+  var cx=w/2, n=data1.length;
+  var lbls=['Planj.','Lideran.','Comun.','Análise','Resolução','Organ.','Negoc.','Autono.'].slice(0,n);
+  var ang=data1.map((_,i)=>(i*2*Math.PI/n)-(Math.PI/2));
+  var poly=function(data,fill,stroke,sw){
+    var pts=data.map((v,i)=>{var a=ang[i];var d=v/100*r;return (cx+d*Math.cos(a)).toFixed(1)+','+(cy+d*Math.sin(a)).toFixed(1)});
+    return'<polygon points="'+pts.join(' ')+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'" opacity=".85"/>';
+  };
+  var grid=[.25,.5,.75,1].map(f=>{
+    var pts=ang.map(a=>[(cx+f*r*Math.cos(a)).toFixed(1),(cy+f*r*Math.sin(a)).toFixed(1)]);
+    return'<polygon points="'+pts.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="#ccc" stroke-width=".5"/>';
+  }).join('');
+  var spokes=ang.map(a=>'<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r*Math.cos(a)).toFixed(1)+'" y2="'+(cy+r*Math.sin(a)).toFixed(1)+'" stroke="#ccc" stroke-width=".5"/>').join('');
+  var labels=lbls.map((l,i)=>{var a=ang[i];var d=r+15;return'<text x="'+(cx+d*Math.cos(a)).toFixed(1)+'" y="'+(cy+d*Math.sin(a)).toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" class="rl">'+l+'</text>';}).join('');
+  return grid+spokes+poly(data1,'rgba(26,107,60,.12)','#9fe1cb',1.5)+poly(data2,'rgba(26,107,60,.25)','#1a6b3c',2)+labels+
+    '<g transform="translate(10,205)"><rect width="10" height="6" fill="#9fe1cb" rx="1"/><text x="14" y="6" class="rl">Ideal</text></g>'+
+    '<g transform="translate(70,205)"><rect width="10" height="6" fill="#1a6b3c" rx="1"/><text x="14" y="6" class="rl">Apurado</text></g>';
+}
+
+/* ═══════════════════════════════════════
+   TELA 06 — RELATÓRIO
+═══════════════════════════════════════ */
+function scoreLabel(v){
+  if(v>=80) return {lbl:'Predominante',col:'#1a6b3c'};
+  if(v>=60) return {lbl:'Consistente', col:'#5dcaa5'};
+  if(v>=40) return {lbl:'Ocasional',   col:'#fac775'};
+  return {lbl:'Pouco obs.',col:'#f09595'};
+}
+function adherenceLabel(v){
+  if(v>=90) return {lbl:'Excelente',        tag:'tag-green'};
+  if(v>=75) return {lbl:'Boa',              tag:'tag-green'};
+  if(v>=60) return {lbl:'Parcial',          tag:'tag-amber'};
+  return {lbl:'Baixa',           tag:'tag-red'};
+}
+
+function renderRelatorio(){
+  var d=PROFILE;
+  var adh=adherenceLabel(d.aderencia);
+  var b5bars=Object.entries(d.big5).map(([k,v])=>{
+    var nm={abertura:'Abertura',consciencia:'Consciência',extroversao:'Extroversão',afabilidade:'Afabilidade',estabilidade:'Estabilidade'};
+    var s=scoreLabel(v);
+    return`<div class="score-bar">
+      <span class="score-name">${nm[k]}</span>
+      <div class="score-track"><div class="score-fill2" style="width:${v}%;background:${s.col}"></div></div>
+      <span class="score-val" style="color:${s.col}">${v}</span>
+      <span class="score-lv">${s.lbl}</span>
+    </div>`;
+  }).join('');
+
+  var compRows=d.competencias.map(c=>{
+    var gap=c.score-c.ideal;
+    return`<div class="comp-row">
+      <span style="flex:1;font-size:13px">${c.name}</span>
+      <span style="width:70px;text-align:center;font-size:12px;color:#666">${c.ideal}%</span>
+      <span style="width:70px;text-align:center;font-size:13px;font-weight:600">${c.score}%</span>
+      <span style="width:50px;text-align:right;font-size:12px;color:${gap>=0?'#1a6b3c':'#a32d2d'}">${gap>=0?'+':''}${gap}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('pageContent').innerHTML = `
+  <div class="pdf-page">
+    <div class="pdf-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.6px">iBen · Mapeamento Comportamental</div>
+          <div style="font-size:22px;font-weight:700;margin:4px 0">Relatório de Perfil Comportamental</div>
+          <div style="font-size:12px;color:#666">${d.nome} · ${d.cargo} · Emitido em 15/05/2025</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:32px;font-weight:700;color:#1a6b3c">${d.aderencia}%</div>
+          <div style="font-size:11px;color:#666;margin-bottom:4px">Aderência ao cargo</div>
+          <span class="tag tag-green">${adh.lbl} · Indicado</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdf-sec">
+      <div class="pdf-sec-title">Resumo executivo</div>
+      <p style="font-size:13px;color:#333;line-height:1.8">Carlos Mendes apresenta perfil com <strong>alta consciência</strong> e <strong>abertura</strong>, combinando disciplina de planejamento com curiosidade para inovação. Demonstra equilíbrio emocional consistente e habilidades relacionais adequadas ao cargo. Sua aderência ao perfil ideal do cargo <em>Gerente de Projetos</em> é de <strong>${d.aderencia}%</strong>, classificada como <strong>${adh.lbl}</strong>.</p>
+      <div style="font-size:10px;color:#999;border-top:0.5px solid #e0e0e0;margin-top:10px;padding-top:8px"><i class="ti ti-shield-check" style="font-size:11px"></i> Este instrumento é de apoio corporativo à tomada de decisão. Não realiza diagnóstico psicológico e não substitui avaliação conduzida por psicólogo credenciado.</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="pdf-sec" style="margin-bottom:0">
+        <div class="pdf-sec-title">Big Five — Dimensões comportamentais</div>
+        ${b5bars}
+      </div>
+      <div class="pdf-sec" style="margin-bottom:0">
+        <div class="pdf-sec-title">Radar de competências</div>
+        <svg viewBox="0 0 240 220" width="100%" role="img" aria-label="Radar de competências do colaborador">
+          ${buildRadar(d.competencias.map(c=>c.ideal),d.competencias.map(c=>c.score),240,110,80)}
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdf-page">
+    <div class="pdf-sec">
+      <div class="pdf-sec-title">Comparativo perfil × cargo</div>
+      <div style="display:flex;gap:8px;font-size:11px;color:#888;padding-bottom:8px;border-bottom:0.5px solid #e0e0e0">
+        <span style="flex:1">Competência</span><span style="width:70px;text-align:center">Ideal</span>
+        <span style="width:70px;text-align:center">Apurado</span><span style="width:50px;text-align:right">Gap</span>
+      </div>
+      ${compRows}
+    </div>
+
+    <div class="grid-3" style="margin-bottom:18px">
+      <div style="background:#e8f5ee;border-radius:var(--radius);padding:14px">
+        <div style="font-size:12px;font-weight:700;color:#0f6e56;margin-bottom:8px"><i class="ti ti-star"></i> Pontos fortes</div>
+        <ul style="font-size:12px;color:#0f6e56;padding-left:16px;line-height:2">
+          <li>Planejamento estratégico</li><li>Consciência e disciplina</li><li>Estabilidade emocional</li><li>Capacidade analítica</li>
+        </ul>
+      </div>
+      <div style="background:#faeeda;border-radius:var(--radius);padding:14px">
+        <div style="font-size:12px;font-weight:700;color:#854f0b;margin-bottom:8px"><i class="ti ti-alert-triangle"></i> Pontos de atenção</div>
+        <ul style="font-size:12px;color:#854f0b;padding-left:16px;line-height:2">
+          <li>Comunicação assertiva</li><li>Delegação efetiva</li><li>Gestão de conflitos</li>
+        </ul>
+      </div>
+      <div style="background:#fcebeb;border-radius:var(--radius);padding:14px">
+        <div style="font-size:12px;font-weight:700;color:#a32d2d;margin-bottom:8px"><i class="ti ti-shield-exclamation"></i> Riscos de gestão</div>
+        <ul style="font-size:12px;color:#a32d2d;padding-left:16px;line-height:2">
+          <li>Tendência ao controle</li><li>Sobrecarga operacional</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pdf-sec">
+      <div class="pdf-sec-title">Sugestões de desenvolvimento</div>
+      <div style="font-size:13px;color:#333;line-height:2">
+        • Treinamento em comunicação não-violenta e feedback estruturado<br>
+        • Prática de delegação com frameworks como RACI e OKR<br>
+        • Mentoria com gestor experiente em ambientes de alta pressão<br>
+        • Leituras sobre liderança situacional e gestão ágil de equipes
+      </div>
+    </div>
+
+    <div style="background:#f8f8f6;border-radius:var(--radius);padding:16px">
+      <div class="pdf-sec-title">Parecer do analista de RH</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="padding:5px 14px;border-radius:20px;background:#1a6b3c;color:#fff;font-size:12px;cursor:pointer;font-weight:500">Indicado</span>
+        <span style="padding:5px 14px;border-radius:20px;border:0.5px solid #ccc;font-size:12px;cursor:pointer;color:#666">Parcialmente Indicado</span>
+        <span style="padding:5px 14px;border-radius:20px;border:0.5px solid #ccc;font-size:12px;cursor:pointer;color:#666">Não Indicado</span>
+      </div>
+      <textarea class="form-textarea" rows="3" placeholder="Observações do analista de RH…">Candidato demonstra perfil alinhado às exigências do cargo. Recomenda-se acompanhamento nos primeiros 90 dias com foco no desenvolvimento da comunicação e delegação.</textarea>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════
+   TELA 07 — HISTÓRICO
+═══════════════════════════════════════ */
+function renderHistorico(){
+  var evols=[
+    {name:'Planejamento',v:[68,74,85]},
+    {name:'Liderança',   v:[60,70,82]},
+    {name:'Comunicação', v:[65,71,78]},
+    {name:'Estabilidade',v:[72,75,79]},
+    {name:'Consciência', v:[75,80,88]}
+  ];
+  var evoBars=evols.map(e=>{
+    var cols=['#9fe1cb','#5dcaa5','#1a6b3c'];
+    var bars=e.v.map((v,i)=>`<div class="evo-bar" style="background:${cols[i]};width:${Math.round(v*.7)}px">${v}</div>`).join('');
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:12px;color:var(--text2);width:90px;flex-shrink:0">${e.name}</span>
+      <div style="display:flex;gap:4px">${bars}</div>
+    </div>`;
+  }).join('');
+
+  var timeline=[
+    {d:'Março 2024', a:'72%',lbl:'Parcial',col:'#fac775'},
+    {d:'Setembro 2024',a:'79%',lbl:'Boa',   col:'#5dcaa5'},
+    {d:'Maio 2025',  a:'88%',lbl:'Excelente',col:'#1a6b3c'}
+  ].map(t=>`
+  <div class="timeline-item">
+    <div class="timeline-dot" style="background:${t.col}"></div>
+    <div class="timeline-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:13px;font-weight:600">${t.d}</div><div style="font-size:11px;color:var(--text2)">Gerente de Projetos · Tecnologia</div></div>
+        <div style="text-align:right">
+          <div style="font-size:20px;font-weight:700;color:${t.col}">${t.a}</div>
+          <div style="font-size:10px;color:var(--text3)">Aderência — ${t.lbl}</div>
+        </div>
+      </div>
+    </div>
+  </div>`).join('');
+
+  document.getElementById('pageContent').innerHTML = `
+  <div class="filter-row">
+    <input class="form-input" style="max-width:240px" value="Carlos Mendes" placeholder="Buscar colaborador…">
+    <button class="btn"><i class="ti ti-git-compare"></i> Comparar</button>
+    <button class="btn"><i class="ti ti-copy"></i> Duplicar</button>
+    <button class="btn btn-primary" onclick="nav('questionario',null)"><i class="ti ti-plus"></i> Nova Avaliação</button>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">Histórico de avaliações — Carlos Mendes</div>
+      <div class="history-timeline">
+        <div class="timeline-line"></div>
+        ${timeline}
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Evolução por competência</div>
+      <div style="display:flex;gap:12px;margin-bottom:12px;font-size:11px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#9fe1cb;border-radius:2px"></span>Mar/24</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#5dcaa5;border-radius:2px"></span>Set/24</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#1a6b3c;border-radius:2px"></span>Mai/25</span>
+      </div>
+      ${evoBars}
+      <div style="position:relative;height:160px;margin-top:16px">
+        <canvas id="chartEvol" role="img" aria-label="Linha de evolução comportamental">Abertura: 68, 74, 82. Consciência: 75, 80, 88. Liderança: 60, 70, 82.</canvas>
+      </div>
+    </div>
+  </div>`;
+
+  setTimeout(()=>{
+    var el=document.getElementById('chartEvol');
+    if(el) charts.evol=new Chart(el,{type:'line',data:{labels:['Mar/24','Set/24','Mai/25'],datasets:[
+      {label:'Abertura',   data:[68,74,82],borderColor:'#9fe1cb',backgroundColor:'rgba(159,225,203,.1)',tension:.4,pointRadius:4,borderWidth:2},
+      {label:'Consciência',data:[75,80,88],borderColor:'#1a6b3c',backgroundColor:'rgba(26,107,60,.08)',tension:.4,pointRadius:4,borderWidth:2},
+      {label:'Liderança',  data:[60,70,82],borderColor:'#fac775',backgroundColor:'rgba(250,199,117,.08)',tension:.4,pointRadius:4,borderWidth:2}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:50,max:100,ticks:{font:{size:11},callback:v=>v+'%'}},x:{ticks:{font:{size:11}}}}}});
+  },80);
+}
+
+/* ═══════════════════════════════════════
+   TELA 08 — ADMIN
+═══════════════════════════════════════ */
+function renderAdmin(){
+  document.getElementById('pageContent').innerHTML = `
+  <div class="tab-row">
+    <div class="tab active" onclick="adminTab('perguntas',this)">Perguntas</div>
+    <div class="tab" onclick="adminTab('competencias',this)">Competências</div>
+    <div class="tab" onclick="adminTab('logs',this)">Logs</div>
+    <div class="tab" onclick="adminTab('export',this)">Exportar</div>
+  </div>
+  <div id="adminContent">${adminPerguntas()}</div>`;
+}
+
+function adminTab(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  var map={perguntas:adminPerguntas,competencias:adminComps,logs:adminLogs,export:adminExport};
+  document.getElementById('adminContent').innerHTML=(map[tab]||adminPerguntas)();
+}
+
+function adminPerguntas(){
+  var rows=QUESTIONS.slice(0,10).map(q=>`<tr>
+    <td style="font-size:11px;color:var(--text3)">Q${q.n}</td>
+    <td style="max-width:280px;font-size:13px">${q.text}</td>
+    <td><span class="tag tag-green" style="font-size:10px">${q.dim}</span></td>
+    <td><span class="tag tag-blue" style="font-size:10px">${q.comp}</span></td>
+    <td><span class="tag ${q.rev?'tag-amber':'tag-gray'}" style="font-size:10px">${q.rev?'Reversa':'Normal'}</span></td>
+    <td><button class="btn btn-sm"><i class="ti ti-edit"></i></button></td>
+  </tr>`).join('');
+  return`<div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin-bottom:0">Banco de perguntas (80 total)</div>
+      <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Nova pergunta</button>
+    </div>
+    <div class="filter-row" style="margin-bottom:12px">
+      <select class="form-select" style="max-width:160px">
+        <option>Todas dimensões</option>${['Abertura','Consciência','Extroversão','Afabilidade','Estabilidade','Estilo','Liderança','Motivação'].map(d=>`<option>${d}</option>`).join('')}
+      </select>
+      <select class="form-select" style="max-width:120px"><option>Todas</option><option>Normal</option><option>Reversa</option></select>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table"><thead><tr><th>#</th><th>Pergunta</th><th>Dimensão</th><th>Competência</th><th>Tipo</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px">Exibindo 10 de 80 perguntas</div>
+  </div>`;
+}
+
+function adminComps(){
+  var comps=['Organização','Planejamento','Comunicação','Liderança','Análise','Relacionamento','Criatividade','Negociação','Execução','Autonomia','Influência','Resolução de Problemas'];
+  return`<div class="card">
+    <div class="section-title">Competências cadastradas (${comps.length})</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:14px">
+      ${comps.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--radius)">
+        <span style="font-size:13px">${c}</span>
+        <button class="btn btn-sm"><i class="ti ti-edit"></i></button>
+      </div>`).join('')}
+    </div>
+    <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Nova competência</button>
+  </div>`;
+}
+
+function adminLogs(){
+  var logs=[
+    ['15/05/2025 14:32','Ana Silva','Avaliação concluída','Carlos Mendes'],
+    ['15/05/2025 11:20','Pedro Gomes','Cargo editado','Gerente de Projetos'],
+    ['14/05/2025 16:45','Ana Silva','Relatório gerado','Juliana Alves'],
+    ['14/05/2025 09:10','Sistema','Backup automático','banco_2025-05-14.sql'],
+    ['13/05/2025 17:30','Ana Silva','Pergunta adicionada','Q81 — Dimensão Estilo'],
+    ['12/05/2025 10:05','Pedro Gomes','Usuário criado','roberto.lima@empresa.com'],
+  ];
+  return`<div class="card" style="padding:0;overflow:hidden">
+    <table class="table"><thead><tr><th>Data / Hora</th><th>Usuário</th><th>Ação</th><th>Referência</th></tr></thead>
+    <tbody>${logs.map(l=>`<tr><td style="font-size:11px;color:var(--text3)">${l[0]}</td><td>${l[1]}</td><td>${l[2]}</td><td style="color:var(--text2)">${l[3]}</td></tr>`).join('')}</tbody></table>
+  </div>`;
+}
+
+function adminExport(){
+  var items=[
+    ['Banco de avaliações','CSV · todas as avaliações','ti-table'],
+    ['Perguntas e pesos','JSON · configuração completa','ti-code'],
+    ['Relatórios PDF','ZIP · todos os relatórios','ti-file-zip'],
+    ['Backup PostgreSQL','SQL · banco completo','ti-database']
+  ];
+  return`<div class="grid-2">
+    ${items.map(([t,s,ic])=>`<div class="card" style="cursor:pointer" onclick="alert('Download: ${t}')">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <i class="ti ${ic}" style="font-size:22px;color:var(--green)"></i>
+        <span style="font-size:14px;font-weight:600">${t}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2)">${s}</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:12px"><i class="ti ti-download"></i> Exportar</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+/* INIT */
+document.getElementById('loginScreen').style.display='flex';
+document.getElementById('sidebarEl').style.display='none';
+document.getElementById('mainEl').style.display='none';
+</script>
+</body>
+</html>
