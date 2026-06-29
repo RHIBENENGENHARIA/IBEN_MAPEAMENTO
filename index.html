@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iBen — Mapeamento Comportamental</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#fff;--bg2:#f5f5f3;--bg3:#efefec;--text:#1a1a1a;--text2:#6b6b6b;--text3:#9b9b9b;--border:rgba(0,0,0,.1);--border2:rgba(0,0,0,.18);--green:#1a6b3c;--gl:#e8f5ee;--gm:#9fe1cb;--r:8px;--rl:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg3);color:var(--text);font-size:14px;line-height:1.5}
+.app{display:flex;height:100vh;overflow:hidden}
+.sb{width:220px;background:var(--bg);border-right:.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sb-logo{padding:20px 16px 16px;border-bottom:.5px solid var(--border)}
+.logo-m{display:flex;align-items:center;gap:8px}
+.logo-d{width:30px;height:30px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.sb-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-s{font-size:10px;color:var(--text3);padding:8px 8px 4px;text-transform:uppercase;letter-spacing:.6px}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13px;margin-bottom:1px;transition:background .15s;user-select:none}
+.ni:hover{background:var(--bg2);color:var(--text)}
+.ni.active{background:var(--gl);color:var(--green);font-weight:600}
+.ni i{font-size:16px;width:18px;flex-shrink:0}
+.sb-foot{padding:12px 8px;border-top:.5px solid var(--border)}
+.u-row{display:flex;align-items:center;gap:8px;padding:6px 8px}
+.u-av{width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{padding:14px 24px;background:var(--bg);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.content{padding:24px;flex:1}
+.btn{padding:6px 14px;border-radius:var(--r);border:.5px solid var(--border2);background:transparent;cursor:pointer;font-size:13px;color:var(--text);display:inline-flex;align-items:center;gap:5px;transition:background .15s;font-family:inherit}
+.btn:hover{background:var(--bg2)}
+.bp{background:var(--green);color:#fff;border-color:var(--green)}
+.bp:hover{background:#155c33}
+.bd{background:#fcebeb;color:#a32d2d;border-color:#f5c0c0}
+.bs{padding:4px 10px;font-size:12px}
+.card{background:var(--bg);border:.5px solid var(--border);border-radius:var(--rl);padding:16px}
+.mc{background:var(--bg2);border-radius:var(--r);padding:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.st{font-size:13px;font-weight:700;margin-bottom:12px}
+.tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.tg{background:#e8f5ee;color:#0f6e56}
+.ta{background:#faeeda;color:#854f0b}
+.tr{background:#fcebeb;color:#a32d2d}
+.tb{background:#e6f1fb;color:#185fa5}
+.tgr{background:var(--bg2);color:var(--text2)}
+.fg{margin-bottom:14px}
+.fl{font-size:12px;color:var(--text2);margin-bottom:4px;display:block}
+.fi,.fs,.ft{width:100%;padding:7px 10px;border:.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;outline:none}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(26,107,60,.1)}
+.ft{resize:vertical}
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;padding:8px 12px;border-bottom:.5px solid var(--border);text-align:left;font-weight:500}
+.table td{padding:10px 12px;border-bottom:.5px solid var(--border);font-size:13px}
+.table tr:last-child td{border-bottom:none}
+.table tbody tr:hover td{background:var(--bg2)}
+.pb{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px;background:var(--green)}
+.sb2{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sn{font-size:12px;color:var(--text2);width:140px;flex-shrink:0}
+.st2{flex:1;height:7px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.sf{height:100%;border-radius:4px}
+.fr{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.qcard{background:var(--bg);border:.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:10px}
+.qh{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.lk{display:flex;gap:5px}
+.lb{flex:1;padding:8px 4px;border:.5px solid var(--border2);border-radius:var(--r);text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s;background:transparent;user-select:none}
+.lb:hover{border-color:var(--green);color:var(--green);background:var(--gl)}
+.lb.sel{background:var(--green);color:#fff;border-color:var(--green)}
+.cr{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid var(--border)}
+.cr:last-child{border-bottom:none}
+.tab-row{display:flex;border-bottom:.5px solid var(--border);margin-bottom:20px}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-.5px}
+.tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:700}
+.rl{font-size:9.5px;fill:#6b6b6b;font-family:-apple-system,sans-serif}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal{background:var(--bg);border-radius:var(--rl);padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.tw{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:2000}
+.toast{background:var(--text);color:#fff;padding:10px 16px;border-radius:var(--r);font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:si .2s ease}
+.tok{background:#1a6b3c}.terr{background:#a32d2d}
+@keyframes si{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+.es{text-align:center;padding:60px 20px;color:var(--text2)}
+.es i{font-size:48px;color:var(--text3);display:block;margin-bottom:12px}
+.es h3{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.lw{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg3)}
+.lc{background:var(--bg);border:.5px solid var(--border);border-radius:var(--rl);padding:40px;width:380px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.lb2{width:52px;height:52px;background:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;margin:0 auto 14px}
+.pp{background:#fff;border:.5px solid var(--border);border-radius:var(--rl);padding:32px;margin-bottom:16px}
+.ph{border-bottom:3px solid var(--green);padding-bottom:16px;margin-bottom:20px}
+.ps{margin-bottom:18px}
+.pst{font-size:12px;font-weight:700;color:var(--green);border-left:3px solid var(--green);padding-left:8px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px}
+.ae{background:var(--gl);border:.5px solid var(--gm);border-radius:var(--r);padding:10px 14px;font-size:12px;color:#0f6e56;display:flex;align-items:center;gap:8px;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div id="loginWrap" class="lw">
+  <div class="lc">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="lb2">i</div>
+      <div style="font-size:20px;font-weight:700">iBen</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:3px">Mapeamento Comportamental</div>
+    </div>
+    <div id="loginErr" style="display:none;background:#fcebeb;border:.5px solid #f5c0c0;border-radius:var(--r);padding:10px 14px;font-size:12px;color:#a32d2d;margin-bottom:12px">
+      E-mail ou senha incorretos.
+    </div>
+    <div class="fg">
+      <label class="fl">E-mail</label>
+      <input class="fi" id="loginEmail" type="email" placeholder="seu@email.com">
+    </div>
+    <div class="fg">
+      <label class="fl">Senha</label>
+      <input class="fi" id="loginSenha" type="password" placeholder="senha">
+    </div>
+    <button class="btn bp" style="width:100%;justify-content:center;padding:10px;font-size:14px" onclick="doLogin()">
+      <i class="ti ti-login"></i> Entrar no Sistema
+    </button>
+    <div style="font-size:10px;color:var(--text3);text-align:center;margin-top:16px">
+      Instrumento corporativo. Nao realiza diagnostico psicologico.
+    </div>
+  </div>
+</div>
+
+<div id="appWrap" class="app" style="display:none">
+  <div class="sb">
+    <div class="sb-logo">
+      <div class="logo-m">
+        <div class="logo-d">i</div>
+        <div>
+          <div style="font-size:15px;font-weight:700">iBen</div>
+          <div style="font-size:10px;color:var(--text2)">Modelo Comportamental</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="nav-s">Principal</div>
+      <div class="ni active" id="ni-dashboard" onclick="nav('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+      <div class="ni" id="ni-avaliacoes" onclick="nav('avaliacoes')"><i class="ti ti-clipboard-list"></i> Avaliacoes</div>
+      <div class="ni" id="ni-questionario" onclick="nav('questionario')"><i class="ti ti-forms"></i> Novo Questionario</div>
+      <div class="nav-s">Configuracao</div>
+      <div class="ni" id="ni-cargos" onclick="nav('cargos')"><i class="ti ti-briefcase"></i> Cargos</div>
+      <div class="ni" id="ni-banco" onclick="nav('banco')"><i class="ti ti-database"></i> Banco de Perguntas</div>
+      <div class="nav-s">Gestao</div>
+      <div class="ni" id="ni-historico" onclick="nav('historico')"><i class="ti ti-clock-history"></i> Historico</div>
+      <div class="ni" id="ni-admin" onclick="nav('admin')"><i class="ti ti-settings"></i> Admin</div>
+    </div>
+    <div class="sb-foot">
+      <div class="u-row">
+        <div class="u-av" id="uAv">RH</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600" id="uNome">RH IBEN</div>
+          <div style="font-size:10px;color:var(--text3)" id="uPerfil">Administrador</div>
+        </div>
+        <i class="ti ti-logout" style="cursor:pointer;font-size:15px;color:var(--text3)" onclick="doLogout()"></i>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div style="font-size:16px;font-weight:700" id="pgTitle">Dashboard</div>
+        <div style="font-size:11px;color:var(--text2)" id="pgSub">Visao geral</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center" id="pgActions"></div>
+    </div>
+    <div class="content" id="pgContent"></div>
+  </div>
+</div>
+
+<div class="tw" id="toastWrap"></div>
+
+<script>
+// ── DB ──────────────────────────────────────────
+var DB = {
+  s: function(k,v){ localStorage.setItem('iben_'+k, JSON.stringify(v)); },
+  l: function(k,d){ try{ var v=localStorage.getItem('iben_'+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+};
+
+// ── DEFAULTS ────────────────────────────────────
+var DEF_USERS = [{id:1,nome:'RH IBEN',email:'rh@iben.eng.br',senha:'Iben1234',perfil:'Administrador',av:'RH',ativo:true}];
+
+var DEF_CARGOS = [
+  {id:1,nome:'Diretor',area:'Lideranca',meta:90,objetivo:'Conduzir estrategicamente a empresa, garantindo resultados sustentaveis, crescimento, desenvolvimento das equipes e tomada de decisao baseada em dados.',competencias:[
+    {name:'Lideranca Estrategica',peso:5,ideal:90},{name:'Gestao de Pessoas',peso:5,ideal:90},{name:'Tomada de Decisao',peso:5,ideal:90},{name:'Visao Sistemica',peso:5,ideal:90},
+    {name:'Comunicacao',peso:4,ideal:85},{name:'Negociacao',peso:4,ideal:85},{name:'Planejamento Estrategico',peso:4,ideal:85},{name:'Inteligencia Emocional',peso:4,ideal:85},
+    {name:'Gestao de Mudancas',peso:4,ideal:80},{name:'Resolucao de Problemas',peso:4,ideal:80}]},
+  {id:2,nome:'Gerente',area:'Lideranca',meta:85,objetivo:'Garantir o desempenho da area atraves da gestao das pessoas, processos e resultados.',competencias:[
+    {name:'Lideranca',peso:5,ideal:85},{name:'Gestao de Pessoas',peso:5,ideal:85},{name:'Comunicacao',peso:5,ideal:85},{name:'Planejamento',peso:5,ideal:85},
+    {name:'Organizacao',peso:4,ideal:80},{name:'Analise',peso:4,ideal:80},{name:'Negociacao',peso:4,ideal:80},{name:'Resolucao de Problemas',peso:4,ideal:80},
+    {name:'Inteligencia Emocional',peso:4,ideal:80},{name:'Desenvolvimento da Equipe',peso:4,ideal:80}]},
+  {id:3,nome:'Coordenador',area:'Lideranca',meta:80,objetivo:'Coordenar a equipe garantindo organizacao, produtividade, integracao e cumprimento das metas.',competencias:[
+    {name:'Lideranca',peso:5,ideal:80},{name:'Comunicacao',peso:5,ideal:80},{name:'Organizacao',peso:5,ideal:80},{name:'Responsabilidade',peso:5,ideal:80},
+    {name:'Planejamento',peso:4,ideal:75},{name:'Tomada de Decisao',peso:4,ideal:75},{name:'Gestao de Conflitos',peso:4,ideal:75},{name:'Trabalho em Equipe',peso:4,ideal:75},
+    {name:'Resolucao de Problemas',peso:4,ideal:75},{name:'Proatividade',peso:4,ideal:75}]},
+  {id:4,nome:'Supervisor',area:'Lideranca',meta:80,objetivo:'Acompanhar a execucao das atividades, orientar equipes e garantir o cumprimento dos processos.',competencias:[
+    {name:'Organizacao',peso:5,ideal:80},{name:'Comunicacao',peso:5,ideal:80},{name:'Responsabilidade',peso:5,ideal:80},
+    {name:'Lideranca',peso:4,ideal:75},{name:'Planejamento',peso:4,ideal:75},{name:'Controle',peso:4,ideal:75},
+    {name:'Trabalho em Equipe',peso:4,ideal:75},{name:'Resolucao de Problemas',peso:4,ideal:75},{name:'Proatividade',peso:4,ideal:75}]},
+  {id:5,nome:'Especialista',area:'Tecnica',meta:80,objetivo:'Atuar como referencia tecnica garantindo qualidade, analise e melhoria continua.',competencias:[
+    {name:'Analise',peso:5,ideal:80},{name:'Organizacao',peso:5,ideal:80},{name:'Autonomia',peso:5,ideal:80},{name:'Resolucao de Problemas',peso:5,ideal:80},
+    {name:'Planejamento',peso:4,ideal:75},{name:'Comunicacao',peso:4,ideal:75},{name:'Proatividade',peso:4,ideal:75}]}
+];
+
+var DEF_PERGUNTAS = [
+  {id:1,text:'Gosto de testar formas novas de trabalhar',dim:'Abertura',comp:'Proatividade',peso:3,rev:false,ativo:true},
+  {id:2,text:'Mudancas me estimulam e geram energia',dim:'Abertura',comp:'Gestao de Mudancas',peso:3,rev:false,ativo:true},
+  {id:3,text:'Prefiro manter as rotinas ja conhecidas',dim:'Abertura',comp:'Gestao de Mudancas',peso:3,rev:true,ativo:true},
+  {id:4,text:'Busco conhecimento alem da minha funcao atual',dim:'Abertura',comp:'Analise',peso:3,rev:false,ativo:true},
+  {id:5,text:'Fico confortavel em ambientes de incerteza',dim:'Abertura',comp:'Inteligencia Emocional',peso:3,rev:false,ativo:true},
+  {id:6,text:'Proponho melhorias nos processos em que atuo',dim:'Abertura',comp:'Proatividade',peso:3,rev:false,ativo:true},
+  {id:7,text:'Experimento novas abordagens antes de seguir o padrao',dim:'Abertura',comp:'Proatividade',peso:3,rev:false,ativo:true},
+  {id:8,text:'Dificilmente mudo meu ponto de vista',dim:'Abertura',comp:'Gestao de Mudancas',peso:2,rev:true,ativo:true},
+  {id:9,text:'Cumpro prazos de forma consistente',dim:'Consciencia',comp:'Responsabilidade',peso:4,rev:false,ativo:true},
+  {id:10,text:'Planejo minhas atividades com antecedencia',dim:'Consciencia',comp:'Planejamento',peso:4,rev:false,ativo:true},
+  {id:11,text:'Finalizo todas as tarefas antes de iniciar novas',dim:'Consciencia',comp:'Organizacao',peso:3,rev:false,ativo:true},
+  {id:12,text:'Costumo deixar atividades inacabadas',dim:'Consciencia',comp:'Responsabilidade',peso:4,rev:true,ativo:true},
+  {id:13,text:'Mantenho meu espaco de trabalho organizado',dim:'Consciencia',comp:'Organizacao',peso:3,rev:false,ativo:true},
+  {id:14,text:'Estabeleco prioridades claras para cada dia',dim:'Consciencia',comp:'Planejamento',peso:4,rev:false,ativo:true},
+  {id:15,text:'Acompanho indicadores e resultados regularmente',dim:'Consciencia',comp:'Controle',peso:4,rev:false,ativo:true},
+  {id:16,text:'Reviso minhas entregas antes de finalizar',dim:'Consciencia',comp:'Organizacao',peso:3,rev:false,ativo:true},
+  {id:17,text:'Me preparo para reunioes com antecedencia',dim:'Consciencia',comp:'Planejamento',peso:3,rev:false,ativo:true},
+  {id:18,text:'Analiso riscos antes de tomar decisoes',dim:'Consciencia',comp:'Tomada de Decisao',peso:5,rev:false,ativo:true},
+  {id:19,text:'Tomo decisoes com base em dados e evidencias',dim:'Consciencia',comp:'Analise',peso:5,rev:false,ativo:true},
+  {id:20,text:'Planejo estrategias de longo prazo com clareza',dim:'Consciencia',comp:'Planejamento Estrategico',peso:5,rev:false,ativo:true},
+  {id:21,text:'Tenho facilidade em iniciar conversas com pessoas novas',dim:'Extroversao',comp:'Comunicacao',peso:3,rev:false,ativo:true},
+  {id:22,text:'Gosto de apresentar ideias para grupos',dim:'Extroversao',comp:'Comunicacao',peso:3,rev:false,ativo:true},
+  {id:23,text:'Lidero conversas e puxo discussoes',dim:'Extroversao',comp:'Lideranca',peso:4,rev:false,ativo:true},
+  {id:24,text:'Me sinto a vontade em negociacoes presenciais',dim:'Extroversao',comp:'Negociacao',peso:4,rev:false,ativo:true},
+  {id:25,text:'Expresso minhas opinioes com clareza',dim:'Extroversao',comp:'Comunicacao',peso:4,rev:false,ativo:true},
+  {id:26,text:'Consigo negociar de forma assertiva',dim:'Extroversao',comp:'Negociacao',peso:4,rev:false,ativo:true},
+  {id:27,text:'Adapto minha comunicacao ao perfil do interlocutor',dim:'Extroversao',comp:'Comunicacao',peso:4,rev:false,ativo:true},
+  {id:28,text:'Consigo convencer e engajar pessoas para objetivos comuns',dim:'Extroversao',comp:'Lideranca Estrategica',peso:5,rev:false,ativo:true},
+  {id:29,text:'Escuto antes de tirar conclusoes',dim:'Afabilidade',comp:'Gestao de Pessoas',peso:4,rev:false,ativo:true},
+  {id:30,text:'Me preocupo com o bem-estar dos colegas',dim:'Afabilidade',comp:'Gestao de Pessoas',peso:4,rev:false,ativo:true},
+  {id:31,text:'Reconheco quando estou errado com facilidade',dim:'Afabilidade',comp:'Inteligencia Emocional',peso:4,rev:false,ativo:true},
+  {id:32,text:'Valorizo opinioes diferentes da minha',dim:'Afabilidade',comp:'Visao Sistemica',peso:4,rev:false,ativo:true},
+  {id:33,text:'Tenho dificuldade em aceitar criticas',dim:'Afabilidade',comp:'Inteligencia Emocional',peso:4,rev:true,ativo:true},
+  {id:34,text:'Construo relacionamentos de longo prazo',dim:'Afabilidade',comp:'Gestao de Pessoas',peso:4,rev:false,ativo:true},
+  {id:35,text:'Ofereço ajuda sem ser solicitado',dim:'Afabilidade',comp:'Trabalho em Equipe',peso:3,rev:false,ativo:true},
+  {id:36,text:'Mantenho calma em situacoes de pressao',dim:'Estabilidade',comp:'Inteligencia Emocional',peso:5,rev:false,ativo:true},
+  {id:37,text:'Recebo feedback construtivo com abertura',dim:'Estabilidade',comp:'Desenvolvimento da Equipe',peso:4,rev:false,ativo:true},
+  {id:38,text:'Mudancas repentinas me desestabilizam',dim:'Estabilidade',comp:'Gestao de Mudancas',peso:4,rev:true,ativo:true},
+  {id:39,text:'Consigo tomar decisoes mesmo sob pressao',dim:'Estabilidade',comp:'Tomada de Decisao',peso:5,rev:false,ativo:true},
+  {id:40,text:'Me recupero rapidamente de contratempos',dim:'Estabilidade',comp:'Inteligencia Emocional',peso:4,rev:false,ativo:true},
+  {id:41,text:'Controlo minhas emocoes em conflitos',dim:'Estabilidade',comp:'Gestao de Conflitos',peso:4,rev:false,ativo:true},
+  {id:42,text:'Demonstro equilibrio emocional para a equipe',dim:'Estabilidade',comp:'Lideranca',peso:4,rev:false,ativo:true},
+  {id:43,text:'Gosto de trabalhar com processos estruturados',dim:'Estilo',comp:'Organizacao',peso:3,rev:false,ativo:true},
+  {id:44,text:'Organizo minhas prioridades antes de comecar',dim:'Estilo',comp:'Planejamento',peso:4,rev:false,ativo:true},
+  {id:45,text:'Monitoro indicadores de desempenho regularmente',dim:'Estilo',comp:'Controle',peso:4,rev:false,ativo:true},
+  {id:46,text:'Consigo sustentar foco por longos periodos',dim:'Estilo',comp:'Responsabilidade',peso:4,rev:false,ativo:true},
+  {id:47,text:'Deixo claro para minha equipe o que espero deles',dim:'Lideranca',comp:'Comunicacao',peso:5,rev:false,ativo:true},
+  {id:48,text:'Delego tarefas com clareza e confianca',dim:'Lideranca',comp:'Lideranca',peso:5,rev:false,ativo:true},
+  {id:49,text:'Acompanho resultados sem controlar excessivamente',dim:'Lideranca',comp:'Lideranca Estrategica',peso:4,rev:false,ativo:true},
+  {id:50,text:'Evito tomar decisoes dificeis',dim:'Lideranca',comp:'Tomada de Decisao',peso:5,rev:true,ativo:true},
+  {id:51,text:'Desenvolvo ativamente as pessoas ao meu redor',dim:'Lideranca',comp:'Desenvolvimento da Equipe',peso:5,rev:false,ativo:true},
+  {id:52,text:'Crio um ambiente seguro para que a equipe se expresse',dim:'Lideranca',comp:'Gestao de Pessoas',peso:5,rev:false,ativo:true},
+  {id:53,text:'Reconheco publicamente os bons resultados da equipe',dim:'Lideranca',comp:'Gestao de Pessoas',peso:4,rev:false,ativo:true},
+  {id:54,text:'Inspiro confianca pelo meu exemplo',dim:'Lideranca',comp:'Lideranca Estrategica',peso:5,rev:false,ativo:true},
+  {id:55,text:'Tenho dificuldade em dar feedbacks negativos',dim:'Lideranca',comp:'Comunicacao',peso:4,rev:true,ativo:true},
+  {id:56,text:'Defendo minha equipe em situacoes de pressao',dim:'Lideranca',comp:'Lideranca',peso:4,rev:false,ativo:true},
+  {id:57,text:'Busco desafios que me tirem da zona de conforto',dim:'Motivacao',comp:'Proatividade',peso:4,rev:false,ativo:true},
+  {id:58,text:'Quero crescer profissionalmente de forma continua',dim:'Motivacao',comp:'Desenvolvimento da Equipe',peso:4,rev:false,ativo:true},
+  {id:59,text:'Sinto que meu trabalho tem proposito claro',dim:'Motivacao',comp:'Responsabilidade',peso:4,rev:false,ativo:true},
+  {id:60,text:'Busco feedback para evoluir constantemente',dim:'Motivacao',comp:'Desenvolvimento da Equipe',peso:4,rev:false,ativo:true},
+  {id:61,text:'Realizo-me quando vejo impacto no meu trabalho',dim:'Motivacao',comp:'Responsabilidade',peso:4,rev:false,ativo:true},
+  {id:62,text:'Identifico oportunidades antes de serem apontadas',dim:'Motivacao',comp:'Visao Sistemica',peso:4,rev:false,ativo:true},
+  {id:63,text:'Tenho visao clara do impacto das minhas decisoes no todo',dim:'Consciencia',comp:'Visao Sistemica',peso:5,rev:false,ativo:true},
+  {id:64,text:'Me envolvo com projetos alem da minha funcao',dim:'Motivacao',comp:'Proatividade',peso:3,rev:false,ativo:true}
+];
+
+function getUsers(){ return DB.l('users', DEF_USERS); }
+function saveUsers(u){ DB.s('users', u); }
+function getCargos(){ return DB.l('cargos', DEF_CARGOS); }
+function saveCargos(c){ DB.s('cargos', c); }
+function getPerguntas(){ return DB.l('perguntas', DEF_PERGUNTAS); }
+function savePerguntas(p){ DB.s('perguntas', p); }
+function getAvaliacoes(){ return DB.l('avaliacoes', []); }
+function saveAvaliacoes(a){ DB.s('avaliacoes', a); }
+
+// ── ESTADO ──────────────────────────────────────
+var CU = null; // current user
+var CE = null; // current eval
+var CH = {}; // charts
+var QP = 0;  // question page
+var QPP = 5; // questions per page
+var cargoEdit = null;
+var pergEdit = null;
+var userEdit = null;
+
+// ── UTILS ────────────────────────────────────────
+function uid(){ return Date.now() + Math.floor(Math.random()*9999); }
+function fmtDate(d){ return new Date(d).toLocaleDateString('pt-BR'); }
+function now(){ return new Date().toISOString(); }
+function scoreLabel(v){ if(v>=80)return{l:'Predominante',c:'#1a6b3c'}; if(v>=60)return{l:'Consistente',c:'#5dcaa5'}; if(v>=40)return{l:'Ocasional',c:'#fac775'}; return{l:'Pouco obs.',c:'#f09595'}; }
+function adhLabel(v){ if(v>=90)return{l:'Excelente',t:'tg'}; if(v>=75)return{l:'Boa',t:'tg'}; if(v>=60)return{l:'Parcial',t:'ta'}; return{l:'Baixa',t:'tr'}; }
+function pTag(p){ return p==='Indicado'?'tg':p==='Parcialmente Indicado'?'ta':p==='Nao Indicado'?'tr':'tgr'; }
+function dc(){ Object.values(CH).forEach(function(c){ try{c.destroy();}catch(e){} }); CH={}; }
+
+function toast(msg, tp){
+  var tw=document.getElementById('toastWrap');
+  var t=document.createElement('div');
+  t.className='toast '+(tp==='err'?'terr':'tok');
+  t.innerHTML='<i class="ti ti-'+(tp==='err'?'alert-circle':'check')+'"></i> '+msg;
+  tw.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(function(){ t.remove(); },300); },3000);
+}
+
+function modal(html, onOk, okLabel, danger){
+  var ov=document.createElement('div'); ov.className='ov'; ov.id='mOv';
+  ov.innerHTML='<div class="modal">'+html+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn '+(danger?'bd':'bp')+'" id="mOkBtn">'+(okLabel||'Confirmar')+'</button></div></div>';
+  document.body.appendChild(ov);
+  document.getElementById('mOkBtn').onclick=function(){ if(onOk)onOk(); closeModal(); };
+}
+function closeModal(){ var m=document.getElementById('mOv'); if(m)m.remove(); }
+
+// ── AUTH ─────────────────────────────────────────
+function doLogin(){
+  var email=document.getElementById('loginEmail').value.trim().toLowerCase();
+  var senha=document.getElementById('loginSenha').value;
+  var u=getUsers().find(function(x){ return x.email.toLowerCase()===email && x.senha===senha && x.ativo; });
+  if(!u){
+    document.getElementById('loginErr').style.display='block';
+    return;
+  }
+  document.getElementById('loginErr').style.display='none';
+  CU=u;
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('appWrap').style.display='flex';
+  document.getElementById('uAv').textContent=u.av||u.nome.substring(0,2).toUpperCase();
+  document.getElementById('uNome').textContent=u.nome;
+  document.getElementById('uPerfil').textContent=u.perfil;
+  nav('dashboard');
+}
+
+function doLogout(){
+  dc(); CU=null; CE=null;
+  document.getElementById('appWrap').style.display='none';
+  document.getElementById('loginWrap').style.display='flex';
+  document.getElementById('loginEmail').value='';
+  document.getElementById('loginSenha').value='';
+}
+
+// ── NAV ──────────────────────────────────────────
+function nav(page){
+  dc();
+  document.querySelectorAll('.ni').forEach(function(n){ n.classList.remove('active'); });
+  var ni=document.getElementById('ni-'+page);
+  if(ni) ni.classList.add('active');
+  var titles={dashboard:['Dashboard','Visao geral'],avaliacoes:['Avaliacoes','Gestao de perfis'],questionario:['Novo Questionario','Dados do colaborador'],cargos:['Cargos','Perfis ideais por funcao'],banco:['Banco de Perguntas','Cadastro e gestao'],historico:['Historico','Evolucao longitudinal'],admin:['Administracao','Configuracoes do sistema'],relatorio:['Relatorio','Resultado da avaliacao']};
+  var t=titles[page]||['',''];
+  document.getElementById('pgTitle').textContent=t[0];
+  document.getElementById('pgSub').textContent=t[1];
+  var a=document.getElementById('pgActions');
+  a.innerHTML='';
+  if(page==='dashboard'||page==='avaliacoes'){
+    a.innerHTML='<button class="btn bp" onclick="nav(\'questionario\')"><i class="ti ti-plus"></i> Nova Avaliacao</button>';
+  }
+  if(page==='relatorio'&&CE){
+    a.innerHTML='<button class="btn" onclick="exportExcel()"><i class="ti ti-file-spreadsheet"></i> Excel</button><button class="btn bp" onclick="exportPDF()"><i class="ti ti-file-download"></i> PDF</button>';
+  }
+  var pages={dashboard:renderDashboard,avaliacoes:renderAvaliacoes,questionario:renderQuestionario,cargos:renderCargos,banco:renderBanco,historico:renderHistorico,admin:renderAdmin,relatorio:renderRelatorio};
+  if(pages[page]) pages[page]();
+}
+
+// ── RADAR SVG ────────────────────────────────────
+function buildRadar(ideal, real, cx, cy, r, lbls){
+  var n=ideal.length; if(!n)return'';
+  var ang=ideal.map(function(_,i){ return i*2*Math.PI/n - Math.PI/2; });
+  function pts(data){ return data.map(function(v,i){ var d=v/100*r; return (cx+d*Math.cos(ang[i])).toFixed(1)+','+(cy+d*Math.sin(ang[i])).toFixed(1); }).join(' '); }
+  var grid=[.25,.5,.75,1].map(function(f){ var p=ang.map(function(a){ return (cx+f*r*Math.cos(a)).toFixed(1)+','+(cy+f*r*Math.sin(a)).toFixed(1); }); return '<polygon points="'+p.join(' ')+'" fill="none" stroke="#ccc" stroke-width=".5"/>'; }).join('');
+  var spokes=ang.map(function(a){ return '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r*Math.cos(a)).toFixed(1)+'" y2="'+(cy+r*Math.sin(a)).toFixed(1)+'" stroke="#ccc" stroke-width=".5"/>'; }).join('');
+  var labels=(lbls||[]).map(function(l,i){ var d=r+18; return '<text x="'+(cx+d*Math.cos(ang[i])).toFixed(1)+'" y="'+(cy+d*Math.sin(ang[i])).toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" class="rl">'+l+'</text>'; }).join('');
+  return grid+spokes+'<polygon points="'+pts(ideal)+'" fill="rgba(26,107,60,.1)" stroke="#9fe1cb" stroke-width="1.5" opacity=".8"/><polygon points="'+pts(real)+'" fill="rgba(26,107,60,.25)" stroke="#1a6b3c" stroke-width="2" opacity=".85"/>'+labels;
+}
+
+// ── DASHBOARD ────────────────────────────────────
+function renderDashboard(){
+  var avs=getAvaliacoes();
+  var conc=avs.filter(function(a){ return a.status==='Concluida'; });
+  var ind=conc.filter(function(a){ return a.parecer==='Indicado'; }).length;
+  var par=conc.filter(function(a){ return a.parecer==='Parcialmente Indicado'; }).length;
+  var nao=conc.filter(function(a){ return a.parecer==='Nao Indicado'; }).length;
+  var mediaAd=conc.length?Math.round(conc.reduce(function(s,a){ return s+(a.aderencia||0); },0)/conc.length):0;
+  var mes=new Date().getMonth(); var ano=new Date().getFullYear();
+  var qtdMes=avs.filter(function(a){ var d=new Date(a.data); return d.getMonth()===mes&&d.getFullYear()===ano; }).length;
+  var pc=document.getElementById('pgContent');
+  if(!avs.length){
+    pc.innerHTML='<div class="g4" style="margin-bottom:20px"><div class="mc"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Total</div><div style="font-size:26px;font-weight:700">0</div></div><div class="mc"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Este mes</div><div style="font-size:26px;font-weight:700">0</div></div><div class="mc"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Indicados</div><div style="font-size:26px;font-weight:700">—</div></div><div class="mc"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Media aderencia</div><div style="font-size:26px;font-weight:700">—</div></div></div><div class="card"><div class="es"><i class="ti ti-chart-bar"></i><h3>Nenhuma avaliacao realizada ainda</h3><p>Clique em Nova Avaliacao para comecar.</p><br><button class="btn bp" onclick="nav(\'questionario\')"><i class="ti ti-plus"></i> Nova Avaliacao</button></div></div>';
+    return;
+  }
+  var cc={};conc.forEach(function(a){ cc[a.cargo]=(cc[a.cargo]||0)+1; });
+  pc.innerHTML='<div class="g4" style="margin-bottom:20px"><div class="mc"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Total</div><div style="font-size:26px;font-weight:700">'+avs.length+'</div><div style="font-size:11px;color:var(--green)">'+conc.length+' concluidas</div></div><div class="mc"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Este mes</div><div style="font-size:26px;font-weight:700">'+qtdMes+'</div></div><div class="mc"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Indicados</div><div style="font-size:26px;font-weight:700">'+ind+'</div><div style="font-size:11px;color:var(--green)">de '+conc.length+'</div></div><div class="mc"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Media aderencia</div><div style="font-size:26px;font-weight:700">'+mediaAd+'%</div><div style="font-size:11px;color:var(--green)">'+adhLabel(mediaAd).l+'</div></div></div><div class="g2" style="margin-bottom:16px"><div class="card"><div class="st">Parecer RH</div><div style="position:relative;height:200px"><canvas id="cDonut"></canvas></div></div><div class="card"><div class="st">Por cargo</div><div style="position:relative;height:200px"><canvas id="cBar"></canvas></div></div></div><div class="card"><div class="st">Ultimas avaliacoes</div><table class="table"><thead><tr><th>Colaborador</th><th>Cargo</th><th>Data</th><th>Aderencia</th><th>Parecer</th></tr></thead><tbody>'+avs.slice(-5).reverse().map(function(a){ return '<tr><td><b>'+a.colaborador+'</b></td><td>'+a.cargo+'</td><td>'+fmtDate(a.data)+'</td><td>'+(a.aderencia!=null?'<span class="tag '+adhLabel(a.aderencia).t+'">'+a.aderencia+'%</span>':'—')+'</td><td><span class="tag '+pTag(a.parecer)+'">'+(a.parecer||'—')+'</span></td></tr>'; }).join('')+'</tbody></table></div>';
+  setTimeout(function(){
+    var e1=document.getElementById('cDonut'),e2=document.getElementById('cBar');
+    if(e1) CH.d=new Chart(e1,{type:'doughnut',data:{labels:['Indicado','Parcial','Nao Indicado'],datasets:[{data:[ind,par,nao],backgroundColor:['#1a6b3c','#fac775','#f09595'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    if(e2&&Object.keys(cc).length) CH.b=new Chart(e2,{type:'bar',data:{labels:Object.keys(cc),datasets:[{data:Object.values(cc),backgroundColor:'#1a6b3c',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}},x:{ticks:{font:{size:10}}}}}});
+  },80);
+}
+
+// ── AVALIACOES ───────────────────────────────────
+function renderAvaliacoes(){
+  var avs=getAvaliacoes();
+  var pc=document.getElementById('pgContent');
+  if(!avs.length){
+    pc.innerHTML='<div class="ae"><i class="ti ti-shield-check"></i> Instrumento corporativo. Nao realiza diagnostico psicologico.</div><div class="card"><div class="es"><i class="ti ti-clipboard-list"></i><h3>Nenhuma avaliacao</h3><p>Clique em Nova Avaliacao para iniciar.</p></div></div>';
+    return;
+  }
+  pc.innerHTML='<div class="ae"><i class="ti ti-shield-check"></i> Instrumento corporativo de apoio a decisao. Nao realiza diagnostico psicologico.</div><div class="fr"><input class="fi" id="fBusca" style="max-width:200px" placeholder="Buscar..."><select class="fs" id="fCargo" style="max-width:150px"><option value="">Todos cargos</option>'+getCargos().map(function(c){ return '<option>'+c.nome+'</option>'; }).join('')+'</select><select class="fs" id="fStatus" style="max-width:130px"><option value="">Todos</option><option>Concluida</option><option>Em andamento</option></select></div><div class="card" style="padding:0;overflow:hidden"><table class="table"><thead><tr><th>Colaborador</th><th>Cargo</th><th>Status</th><th>Data</th><th>Aderencia</th><th>Parecer</th><th></th></tr></thead><tbody id="tbAvs">'+buildAvRows(avs.slice().reverse())+'</tbody></table></div>';
+  document.getElementById('fBusca').oninput=filtAvs;
+  document.getElementById('fCargo').onchange=filtAvs;
+  document.getElementById('fStatus').onchange=filtAvs;
+}
+
+function buildAvRows(list){
+  if(!list.length) return '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">Nenhum resultado</td></tr>';
+  return list.map(function(a){ return '<tr><td><b>'+a.colaborador+'</b><div style="font-size:11px;color:var(--text2)">'+(a.area||'—')+'</div></td><td>'+a.cargo+'</td><td><span class="tag '+(a.status==='Concluida'?'tg':'tb')+'">'+a.status+'</span></td><td>'+fmtDate(a.data)+'</td><td>'+(a.aderencia!=null?'<span class="tag '+adhLabel(a.aderencia).t+'">'+a.aderencia+'%</span>':'—')+'</td><td><span class="tag '+pTag(a.parecer)+'">'+(a.parecer||'—')+'</span></td><td style="white-space:nowrap"><button class="btn bs" onclick="verRel('+a.id+')"><i class="ti ti-file-analytics"></i></button> <button class="btn bs" onclick="dupAv('+a.id+')"><i class="ti ti-copy"></i></button> <button class="btn bs bd" onclick="delAv('+a.id+')"><i class="ti ti-trash"></i></button></td></tr>'; }).join('');
+}
+
+function filtAvs(){
+  var b=(document.getElementById('fBusca').value||'').toLowerCase();
+  var c=document.getElementById('fCargo').value;
+  var s=document.getElementById('fStatus').value;
+  var list=getAvaliacoes().slice().reverse().filter(function(a){
+    if(b&&!a.colaborador.toLowerCase().includes(b))return false;
+    if(c&&a.cargo!==c)return false;
+    if(s&&a.status!==s)return false;
+    return true;
+  });
+  var tb=document.getElementById('tbAvs'); if(tb) tb.innerHTML=buildAvRows(list);
+}
+
+function verRel(id){ var a=getAvaliacoes().find(function(x){ return x.id===id; }); if(a){ CE=a; nav('relatorio'); } }
+function dupAv(id){
+  var avs=getAvaliacoes(); var o=avs.find(function(x){ return x.id===id; }); if(!o)return;
+  var n=JSON.parse(JSON.stringify(o)); n.id=uid(); n.data=now(); n.status='Em andamento'; n.aderencia=null; n.parecer=''; n.parecerObs=''; n.colaborador=o.colaborador+' (copia)';
+  avs.push(n); saveAvaliacoes(avs); toast('Avaliacao duplicada!'); renderAvaliacoes();
+}
+function delAv(id){
+  modal('<div style="font-size:15px;font-weight:700;margin-bottom:12px"><i class="ti ti-trash" style="color:#a32d2d"></i> Confirmar exclusao</div><p style="font-size:13px;color:var(--text2)">Esta avaliacao sera excluida permanentemente.</p>',function(){
+    saveAvaliacoes(getAvaliacoes().filter(function(x){ return x.id!==id; })); toast('Excluida.'); renderAvaliacoes();
+  },'Excluir',true);
+}
+
+// ── QUESTIONARIO ─────────────────────────────────
+function renderQuestionario(){
+  if(!CE||!CE._etapa){ renderSetup(); } else { renderQuestoes(); }
+}
+
+function renderSetup(){
+  CE={_etapa:'setup',respostas:{}}; QP=0;
+  document.getElementById('pgContent').innerHTML='<div class="card" style="max-width:560px;margin:0 auto"><div class="st"><i class="ti ti-user-plus"></i> Dados do colaborador</div><div class="fg"><label class="fl">Nome completo *</label><input class="fi" id="sNome" placeholder="Nome"></div><div class="g2"><div class="fg"><label class="fl">Area</label><input class="fi" id="sArea" placeholder="Ex: Tecnologia"></div><div class="fg"><label class="fl">Cargo *</label><select class="fs" id="sCargo"><option value="">Selecione...</option>'+getCargos().map(function(c){ return '<option value="'+c.id+'">'+c.nome+'</option>'; }).join('')+'</select></div></div><div class="fg"><label class="fl">Observacoes</label><textarea class="ft" id="sObs" rows="2"></textarea></div><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" onclick="nav(\'avaliacoes\')">Cancelar</button><button class="btn bp" onclick="iniciar()"><i class="ti ti-arrow-right"></i> Iniciar</button></div></div>';
+}
+
+function iniciar(){
+  var nome=document.getElementById('sNome').value.trim();
+  var cid=document.getElementById('sCargo').value;
+  if(!nome){ toast('Informe o nome.','err'); return; }
+  if(!cid){ toast('Selecione o cargo.','err'); return; }
+  var cargo=getCargos().find(function(c){ return c.id==cid; });
+  CE={id:uid(),_etapa:'questoes',colaborador:nome,area:document.getElementById('sArea').value.trim(),cargo:cargo.nome,cargoId:cargo.id,cargo_data:cargo,obs:document.getElementById('sObs').value.trim(),data:now(),status:'Em andamento',respostas:{},parecer:'',parecerObs:''};
+  QP=0;
+  var avs=getAvaliacoes(); avs.push(CE); saveAvaliacoes(avs);
+  renderQuestoes();
+}
+
+function renderQuestoes(){
+  var qs=getPerguntas().filter(function(p){ return p.ativo; });
+  var total=qs.length, start=QP*QPP, end=Math.min(start+QPP,total);
+  var slice=qs.slice(start,end);
+  var ans=Object.keys(CE.respostas||{}).length;
+  var pct=Math.round(ans/total*100);
+  var dc2={Abertura:'#1a6b3c',Consciencia:'#5dcaa5',Extroversao:'#185fa5',Afabilidade:'#854f0b',Estabilidade:'#0f6e56',Estilo:'#533ab7',Lideranca:'#993556',Motivacao:'#993c1d'};
+  var cards=slice.map(function(q){
+    var col=dc2[q.dim]||'#666';
+    var sel=CE.respostas[q.id];
+    var btns=[1,2,3,4,5].map(function(v){ return '<div class="lb'+(sel===v?' sel':'')+'" onclick="setR('+q.id+','+v+',this)">'+v+'</div>'; }).join('');
+    return '<div class="qcard"><div class="qh"><span style="font-size:11px;color:var(--text3);flex-shrink:0">Q'+q.id+'</span><span style="flex:1;font-size:14px">'+q.text+'</span><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0"><span class="tag" style="background:'+col+'22;color:'+col+';font-size:10px">'+q.dim+'</span>'+(q.rev?'<span class="tag ta" style="font-size:10px">Reversa</span>':'')+'</div></div><div class="lk">'+btns+'</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:5px"><span>Discordo totalmente</span><span>Concordo totalmente</span></div></div>';
+  }).join('');
+  var isLast=(end>=total);
+  document.getElementById('pgActions').innerHTML='<span style="font-size:12px;color:var(--text2)">Progresso: <b style="color:var(--green)">'+ans+'/'+total+'</b></span>';
+  document.getElementById('pgContent').innerHTML='<div class="card" style="margin-bottom:16px"><div style="font-size:12px;color:var(--text2);margin-bottom:6px"><b>'+CE.colaborador+'</b> · '+CE.cargo+'</div><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="pb"><div class="pf" style="width:'+pct+'%"></div></div></div><b style="color:var(--green)">'+pct+'%</b></div></div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">Pagina '+(QP+1)+' de '+Math.ceil(total/QPP)+' — perguntas '+(start+1)+' a '+end+'</div>'+cards+'<div style="display:flex;justify-content:space-between;margin-top:8px"><button class="btn" onclick="qNav(-1)"'+(QP===0?' disabled style="opacity:.4"':'')+'>← Anterior</button><button class="btn bp" onclick="qNav(1)">'+(isLast?'Finalizar ✓':'Proximo →')+'</button></div>';
+}
+
+function setR(qid,v,el){
+  CE.respostas[qid]=v;
+  el.closest('.lk').querySelectorAll('.lb').forEach(function(b){ b.classList.remove('sel'); });
+  el.classList.add('sel');
+  var avs=getAvaliacoes(); var i=avs.findIndex(function(a){ return a.id===CE.id; });
+  if(i!==-1){ avs[i]=CE; saveAvaliacoes(avs); }
+}
+
+function qNav(dir){
+  var total=getPerguntas().filter(function(p){ return p.ativo; }).length;
+  var maxP=Math.ceil(total/QPP)-1;
+  if(dir===1&&QP>=maxP){ finalizar(); return; }
+  QP=Math.max(0,Math.min(maxP,QP+dir)); renderQuestoes();
+}
+
+function finalizar(){
+  var qs=getPerguntas().filter(function(p){ return p.ativo; });
+  var cs={},ds={};
+  qs.forEach(function(q){
+    var r=CE.respostas[q.id]; if(!r)return;
+    var v=q.rev?(6-r):r;
+    var n=Math.round((v-1)/4*100);
+    if(!cs[q.comp]){cs[q.comp]={t:0,c:0};}cs[q.comp].t+=n;cs[q.comp].c++;
+    if(!ds[q.dim]){ds[q.dim]={t:0,c:0};}ds[q.dim].t+=n;ds[q.dim].c++;
+  });
+  var cf={},df={};
+  Object.keys(cs).forEach(function(k){ cf[k]=Math.round(cs[k].t/cs[k].c); });
+  Object.keys(ds).forEach(function(k){ df[k]=Math.round(ds[k].t/ds[k].c); });
+  var tp=0,sa=0;
+  if(CE.cargo_data&&CE.cargo_data.competencias){
+    CE.cargo_data.competencias.forEach(function(c){
+      var sc=cf[c.name]!=null?cf[c.name]:50;
+      var ad=Math.min(100,Math.round(sc/c.ideal*100));
+      sa+=ad*c.peso; tp+=c.peso;
+    });
+  }
+  var adh=tp?Math.round(sa/tp):50;
+  CE.compScores=cf; CE.dimScores=df; CE.aderencia=adh;
+  CE.parecer=adh>=75?'Indicado':adh>=60?'Parcialmente Indicado':'Nao Indicado';
+  CE.status='Concluida';
+  var avs=getAvaliacoes(); var i=avs.findIndex(function(a){ return a.id===CE.id; });
+  if(i!==-1)avs[i]=CE; else avs.push(CE);
+  saveAvaliacoes(avs); toast('Avaliacao concluida!'); nav('relatorio');
+}
+
+// ── RELATORIO ────────────────────────────────────
+function renderRelatorio(){
+  if(!CE||!CE.status){
+    document.getElementById('pgContent').innerHTML='<div class="card"><div class="es"><i class="ti ti-file-analytics"></i><h3>Nenhuma avaliacao selecionada</h3><p>Va em Avaliacoes e selecione uma.</p></div></div>';
+    return;
+  }
+  var d=CE, cargo=d.cargo_data;
+  var adh=adhLabel(d.aderencia||0);
+  var dims=['Abertura','Consciencia','Extroversao','Afabilidade','Estabilidade','Estilo','Lideranca','Motivacao'];
+  var bars=dims.map(function(dn){
+    var v=d.dimScores&&d.dimScores[dn]!=null?d.dimScores[dn]:0;
+    var s=scoreLabel(v);
+    return '<div class="sb2"><span class="sn">'+dn+'</span><div class="st2"><div class="sf" style="width:'+v+'%;background:'+s.c+'"></div></div><span style="font-size:12px;font-weight:700;color:'+s.c+';width:32px;text-align:right">'+v+'</span><span style="font-size:10px;color:var(--text3);width:90px;text-align:right">'+s.l+'</span></div>';
+  }).join('');
+  var compRows='',ri=[],rr=[],rl=[];
+  if(cargo&&cargo.competencias){
+    compRows=cargo.competencias.map(function(c){
+      var sc=d.compScores&&d.compScores[c.name]!=null?d.compScores[c.name]:50;
+      var gap=sc-c.ideal;
+      ri.push(c.ideal); rr.push(sc); rl.push(c.name.split(' ')[0]);
+      return '<div class="cr"><span style="flex:1;font-size:13px">'+c.name+'</span><span style="width:70px;text-align:center;font-size:12px;color:#666">'+c.ideal+'%</span><span style="width:70px;text-align:center;font-size:13px;font-weight:700">'+sc+'%</span><span style="width:60px;text-align:right;font-size:12px;color:'+(gap>=0?'#1a6b3c':'#a32d2d')+'">'+(gap>=0?'+':'')+gap+'</span></div>';
+    }).join('');
+  }
+  var ca=Object.entries(d.compScores||{}).map(function(e){ return {k:e[0],v:e[1]}; }).sort(function(a,b){ return b.v-a.v; });
+  var fortes=ca.slice(0,4).map(function(x){ return '<li>'+x.k+' ('+x.v+'%)</li>'; }).join('');
+  var atenc=ca.slice(-3).map(function(x){ return '<li>'+x.k+' ('+x.v+'%)</li>'; }).join('');
+  document.getElementById('pgContent').innerHTML='<div class="pp"><div class="ph"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:10px;color:#888;text-transform:uppercase">iBen · Mapeamento Comportamental</div><div style="font-size:22px;font-weight:700;margin:4px 0">Relatorio de Perfil Comportamental</div><div style="font-size:12px;color:#666">'+d.colaborador+' · '+d.cargo+' · '+fmtDate(d.data)+'</div></div><div style="text-align:right"><div style="font-size:32px;font-weight:700;color:#1a6b3c">'+(d.aderencia||'—')+'%</div><span class="tag tg">'+adh.l+' · '+(d.parecer||'—')+'</span></div></div></div><div class="ps"><div class="pst">Resumo executivo</div><p style="font-size:13px;line-height:1.8">O colaborador <b>'+d.colaborador+'</b> foi avaliado para o cargo de <em>'+d.cargo+'</em>. Aderencia: <b>'+(d.aderencia||0)+'%</b> ('+adh.l+'). Parecer: <b>'+(d.parecer||'—')+'</b>.</p></div><div class="g2"><div class="ps" style="margin-bottom:0"><div class="pst">Dimensoes</div>'+bars+'</div><div class="ps" style="margin-bottom:0"><div class="pst">Radar</div><svg viewBox="0 0 260 250" width="100%">'+buildRadar(ri,rr,130,120,90,rl)+'</svg></div></div></div><div class="pp"><div class="ps"><div class="pst">Comparativo perfil x cargo</div><div style="display:flex;gap:8px;font-size:11px;color:#888;padding-bottom:8px;border-bottom:.5px solid #e0e0e0"><span style="flex:1">Competencia</span><span style="width:70px;text-align:center">Ideal</span><span style="width:70px;text-align:center">Apurado</span><span style="width:60px;text-align:right">Gap</span></div>'+compRows+'</div><div class="g2" style="margin-bottom:16px"><div style="background:#e8f5ee;border-radius:var(--r);padding:14px"><div style="font-size:12px;font-weight:700;color:#0f6e56;margin-bottom:8px">Pontos fortes</div><ul style="font-size:12px;color:#0f6e56;padding-left:16px;line-height:2">'+(fortes||'<li>—</li>')+'</ul></div><div style="background:#faeeda;border-radius:var(--r);padding:14px"><div style="font-size:12px;font-weight:700;color:#854f0b;margin-bottom:8px">Pontos de atencao</div><ul style="font-size:12px;color:#854f0b;padding-left:16px;line-height:2">'+(atenc||'<li>—</li>')+'</ul></div></div><div style="background:#f8f8f6;border-radius:var(--r);padding:16px"><div class="pst">Parecer do analista de RH</div><div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'+['Indicado','Parcialmente Indicado','Nao Indicado'].map(function(p){ return '<button class="btn'+(d.parecer===p?' bp':'')+'" id="pb_'+p.replace(/ /g,'_')+'" onclick="setParecer(\''+p+'\',this)">'+p+'</button>'; }).join('')+'</div><textarea class="ft" id="parecerObs" rows="3" placeholder="Observacoes do analista...">'+(d.parecerObs||'')+'</textarea><button class="btn bp" style="margin-top:8px" onclick="saveParecer()"><i class="ti ti-check"></i> Salvar Parecer</button></div></div>';
+}
+
+function setParecer(p,el){ CE.parecer=p; document.querySelectorAll('[id^="pb_"]').forEach(function(b){ b.classList.remove('bp'); }); el.classList.add('bp'); }
+function saveParecer(){ if(!CE)return; CE.parecerObs=document.getElementById('parecerObs').value; var avs=getAvaliacoes(); var i=avs.findIndex(function(a){ return a.id===CE.id; }); if(i!==-1){avs[i]=CE;saveAvaliacoes(avs);toast('Parecer salvo!');} }
+
+// ── EXCEL ────────────────────────────────────────
+function exportExcel(){
+  if(!CE){toast('Nenhuma avaliacao.','err');return;}
+  var d=CE,cargo=d.cargo_data;
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['iBen - Mapeamento Comportamental'],[''],['Colaborador:',d.colaborador],['Cargo:',d.cargo],['Area:',d.area||'—'],['Data:',fmtDate(d.data)],['Status:',d.status],['Aderencia:',(d.aderencia||0)+'%'],['Classificacao:',adhLabel(d.aderencia||0).l],['Parecer:',d.parecer||'—'],['Obs RH:',d.parecerObs||'—']]),'Resumo Executivo');
+  var qs=getPerguntas().filter(function(p){ return p.ativo; });
+  var w2=[['#','Pergunta','Dimensao','Competencia','Reversa','Resposta','Score']];
+  qs.forEach(function(q){ var r=d.respostas[q.id]||'—'; var s=r!=='—'?(q.rev?Math.round((6-r-1)/4*100):Math.round((r-1)/4*100)):'—'; w2.push([q.id,q.text,q.dim,q.comp,q.rev?'Sim':'Nao',r,s]); });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(w2),'Respostas');
+  var w3=[['Competencia','Score','Nivel']];
+  Object.entries(d.compScores||{}).sort(function(a,b){ return b[1]-a[1]; }).forEach(function(e){ w3.push([e[0],e[1],scoreLabel(e[1]).l]); });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(w3),'Pontuacao por Competencia');
+  var w4=[['Competencia','Peso','Ideal (%)','Apurado (%)','Gap']];
+  if(cargo&&cargo.competencias) cargo.competencias.forEach(function(c){ var sc=d.compScores&&d.compScores[c.name]!=null?d.compScores[c.name]:50; w4.push([c.name,c.peso,c.ideal,sc,sc-c.ideal]); });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(w4),'Comparacao Perfil x Cargo');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['Parecer RH'],[''],['Colaborador:',d.colaborador],['Cargo:',d.cargo],['Aderencia:',(d.aderencia||0)+'%'],['Parecer:',d.parecer||'—'],['Observacoes:',d.parecerObs||'—']]),'Parecer RH');
+  XLSX.writeFile(wb,'iBen_'+d.colaborador.replace(/\s/g,'_')+'.xlsx');
+  toast('Excel exportado!');
+}
+function exportPDF(){ toast('Use Ctrl+P no navegador e selecione Salvar como PDF.'); }
+
+// ── CARGOS ───────────────────────────────────────
+function renderCargos(){
+  var cargos=getCargos();
+  document.getElementById('pgContent').innerHTML='<div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button class="btn bp" onclick="novoCargo()"><i class="ti ti-plus"></i> Novo Cargo</button></div><div class="card" style="padding:0;overflow:hidden;margin-bottom:16px"><table class="table"><thead><tr><th>Cargo</th><th>Area</th><th>Competencias</th><th>Meta</th><th></th></tr></thead><tbody>'+cargos.map(function(c){ return '<tr><td><b>'+c.nome+'</b></td><td>'+c.area+'</td><td>'+c.competencias.length+'</td><td><span class="tag tg">'+c.meta+'%</span></td><td style="white-space:nowrap"><button class="btn bs" onclick="editCargo('+c.id+')"><i class="ti ti-edit"></i></button> <button class="btn bs bd" onclick="delCargo('+c.id+')"><i class="ti ti-trash"></i></button></td></tr>'; }).join('')+'</tbody></table></div><div id="cargoForm"></div>';
+}
+function novoCargo(){ cargoEdit={id:uid(),nome:'',area:'',meta:80,objetivo:'',competencias:[]}; renderCargoForm(); }
+function editCargo(id){ var c=getCargos().find(function(x){ return x.id===id; }); if(c){ cargoEdit=JSON.parse(JSON.stringify(c)); renderCargoForm(); } }
+function delCargo(id){ var c=getCargos().find(function(x){ return x.id===id; }); modal('<div style="font-size:15px;font-weight:700;margin-bottom:12px">Excluir cargo</div><p style="font-size:13px;color:var(--text2)">Excluir <b>'+(c?c.nome:'')+'</b>?</p>',function(){ saveCargos(getCargos().filter(function(x){ return x.id!==id; })); toast('Excluido.'); renderCargos(); },'Excluir',true); }
+function renderCargoForm(){
+  var c=cargoEdit;
+  var compList=c.competencias.map(function(comp,i){ return '<div class="cr"><input class="fi" style="flex:1;max-width:180px" value="'+comp.name+'" onchange="cargoEdit.competencias['+i+'].name=this.value"><div style="display:flex;align-items:center;gap:6px;width:140px"><input type="range" min="1" max="5" value="'+comp.peso+'" style="flex:1;accent-color:var(--green)" oninput="cargoEdit.competencias['+i+'].peso=+this.value;this.nextSibling.textContent=this.value"><span style="font-size:12px;font-weight:700;color:var(--green);width:14px">'+comp.peso+'</span></div><input class="fi" type="number" min="50" max="100" value="'+comp.ideal+'" style="width:65px" onchange="cargoEdit.competencias['+i+'].ideal=+this.value"><button class="btn bs bd" onclick="remComp('+i+')"><i class="ti ti-trash"></i></button></div>'; }).join('');
+  document.getElementById('cargoForm').innerHTML='<div class="card"><div class="st">'+(c.nome?'Editar: '+c.nome:'Novo cargo')+'</div><div class="g2"><div class="fg"><label class="fl">Nome *</label><input class="fi" id="cfN" value="'+c.nome+'"></div><div class="fg"><label class="fl">Area</label><input class="fi" id="cfA" value="'+c.area+'"></div></div><div class="g2"><div class="fg"><label class="fl">Meta (%)</label><input class="fi" id="cfM" type="number" min="50" max="100" value="'+c.meta+'"></div><div class="fg"></div></div><div class="fg"><label class="fl">Objetivo</label><textarea class="ft" id="cfO" rows="2">'+c.objetivo+'</textarea></div><div class="st" style="margin-top:8px">Competencias <small style="font-weight:400;color:var(--text2)">(Nome / Peso 1-5 / Meta%)</small></div><div id="compList">'+compList+'</div><button class="btn bs" style="margin-top:10px" onclick="addComp()"><i class="ti ti-plus"></i> Adicionar</button><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px"><button class="btn" onclick="document.getElementById(\'cargoForm\').innerHTML=\'\'">Cancelar</button><button class="btn bp" onclick="saveCargo()"><i class="ti ti-check"></i> Salvar</button></div></div>';
+  document.getElementById('cargoForm').scrollIntoView({behavior:'smooth'});
+}
+function addComp(){ cargoEdit.competencias.push({name:'',peso:3,ideal:80}); renderCargoForm(); }
+function remComp(i){ cargoEdit.competencias.splice(i,1); renderCargoForm(); }
+function saveCargo(){
+  cargoEdit.nome=document.getElementById('cfN').value.trim();
+  cargoEdit.area=document.getElementById('cfA').value.trim();
+  cargoEdit.meta=+document.getElementById('cfM').value||80;
+  cargoEdit.objetivo=document.getElementById('cfO').value.trim();
+  if(!cargoEdit.nome){toast('Informe o nome.','err');return;}
+  var cargos=getCargos(); var i=cargos.findIndex(function(x){ return x.id===cargoEdit.id; });
+  if(i===-1)cargos.push(cargoEdit);else cargos[i]=cargoEdit;
+  saveCargos(cargos); toast('Cargo salvo!'); renderCargos();
+}
+
+// ── BANCO ────────────────────────────────────────
+var bFilt={dim:'',status:''};
+function renderBanco(){
+  var qs=getPerguntas();
+  document.getElementById('pgContent').innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-size:13px;color:var(--text2)">'+qs.filter(function(q){ return q.ativo; }).length+' ativas de '+qs.length+'</div><button class="btn bp" onclick="novaPerg()"><i class="ti ti-plus"></i> Nova Pergunta</button></div><div class="fr"><select class="fs" style="max-width:150px" onchange="bFilt.dim=this.value;filtBanco()"><option value="">Todas dimensoes</option>'+['Abertura','Consciencia','Extroversao','Afabilidade','Estabilidade','Estilo','Lideranca','Motivacao'].map(function(d){ return '<option>'+d+'</option>'; }).join('')+'</select><select class="fs" style="max-width:120px" onchange="bFilt.status=this.value;filtBanco()"><option value="">Todas</option><option value="true">Ativas</option><option value="false">Inativas</option></select></div><div class="card" style="padding:0;overflow:hidden"><div style="overflow-x:auto"><table class="table"><thead><tr><th>#</th><th>Pergunta</th><th>Dim</th><th>Competencia</th><th>Peso</th><th>Rev</th><th>Status</th><th></th></tr></thead><tbody id="tbBanco">'+buildPRows(qs)+'</tbody></table></div></div><div id="pergForm" style="margin-top:16px"></div>';
+}
+function buildPRows(qs){
+  return qs.map(function(q){ return '<tr><td style="font-size:11px;color:var(--text3)">'+q.id+'</td><td style="max-width:220px;font-size:12px">'+q.text+'</td><td><span class="tag tg" style="font-size:10px">'+q.dim+'</span></td><td style="font-size:12px">'+q.comp+'</td><td style="text-align:center">'+q.peso+'</td><td><span class="tag '+(q.rev?'ta':'tgr')+'" style="font-size:10px">'+(q.rev?'Sim':'Nao')+'</span></td><td><span class="tag '+(q.ativo?'tg':'tr')+'" style="font-size:10px">'+(q.ativo?'Ativa':'Inativa')+'</span></td><td style="white-space:nowrap"><button class="btn bs" onclick="editPerg('+q.id+')"><i class="ti ti-edit"></i></button> <button class="btn bs" onclick="togPerg('+q.id+')" title="'+(q.ativo?'Desativar':'Ativar')+'"><i class="ti ti-'+(q.ativo?'eye-off':'eye')+'"></i></button> <button class="btn bs bd" onclick="delPerg('+q.id+')"><i class="ti ti-trash"></i></button></td></tr>'; }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Nenhuma</td></tr>';
+}
+function filtBanco(){
+  var qs=getPerguntas().filter(function(q){ if(bFilt.dim&&q.dim!==bFilt.dim)return false; if(bFilt.status!==''&&String(q.ativo)!==bFilt.status)return false; return true; });
+  var tb=document.getElementById('tbBanco'); if(tb)tb.innerHTML=buildPRows(qs);
+}
+function novaPerg(){ pergEdit={id:uid(),text:'',dim:'Abertura',comp:'',peso:3,rev:false,ativo:true}; renderPergForm(); }
+function editPerg(id){ var q=getPerguntas().find(function(x){ return x.id===id; }); if(q){ pergEdit=JSON.parse(JSON.stringify(q)); renderPergForm(); } }
+function togPerg(id){ var qs=getPerguntas(); var q=qs.find(function(x){ return x.id===id; }); if(!q)return; q.ativo=!q.ativo; savePerguntas(qs); toast(q.ativo?'Ativada.':'Desativada.'); renderBanco(); }
+function delPerg(id){ modal('<div style="font-size:15px;font-weight:700;margin-bottom:12px">Excluir pergunta</div><p style="font-size:13px;color:var(--text2)">Confirma exclusao permanente?</p>',function(){ savePerguntas(getPerguntas().filter(function(x){ return x.id!==id; })); toast('Excluida.'); renderBanco(); },'Excluir',true); }
+function renderPergForm(){
+  var p=pergEdit; var dims=['Abertura','Consciencia','Extroversao','Afabilidade','Estabilidade','Estilo','Lideranca','Motivacao'];
+  var f=document.getElementById('pergForm'); if(!f)return;
+  f.innerHTML='<div class="card"><div class="st">'+(p.text?'Editar pergunta':'Nova pergunta')+'</div><div class="fg"><label class="fl">Texto *</label><textarea class="ft" id="pfT" rows="2">'+p.text+'</textarea></div><div class="g2"><div class="fg"><label class="fl">Dimensao</label><select class="fs" id="pfD">'+dims.map(function(d){ return '<option '+(p.dim===d?'selected':'')+'>'+d+'</option>'; }).join('')+'</select></div><div class="fg"><label class="fl">Competencia</label><input class="fi" id="pfC" value="'+p.comp+'"></div></div><div class="g2"><div class="fg"><label class="fl">Peso (1-5)</label><input class="fi" id="pfP" type="number" min="1" max="5" value="'+p.peso+'"></div><div class="fg"><label class="fl">Reversa?</label><select class="fs" id="pfR"><option value="false" '+(p.rev?'':'selected')+'>Nao</option><option value="true" '+(p.rev?'selected':'')+'>Sim</option></select></div></div><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" onclick="document.getElementById(\'pergForm\').innerHTML=\'\'">Cancelar</button><button class="btn bp" onclick="savePerg()"><i class="ti ti-check"></i> Salvar</button></div></div>';
+  f.scrollIntoView({behavior:'smooth'});
+}
+function savePerg(){
+  pergEdit.text=document.getElementById('pfT').value.trim();
+  pergEdit.dim=document.getElementById('pfD').value;
+  pergEdit.comp=document.getElementById('pfC').value.trim();
+  pergEdit.peso=+document.getElementById('pfP').value||3;
+  pergEdit.rev=document.getElementById('pfR').value==='true';
+  if(!pergEdit.text){toast('Informe o texto.','err');return;}
+  var qs=getPerguntas(); var i=qs.findIndex(function(q){ return q.id===pergEdit.id; });
+  if(i===-1)qs.push(pergEdit);else qs[i]=pergEdit;
+  savePerguntas(qs); toast('Pergunta salva!'); document.getElementById('pergForm').innerHTML=''; renderBanco();
+}
+
+// ── HISTORICO ────────────────────────────────────
+var hFilt={b:'',c:'',s:'',p:''};
+function renderHistorico(){
+  var avs=getAvaliacoes().slice().reverse();
+  var pc=document.getElementById('pgContent');
+  if(!avs.length){ pc.innerHTML='<div class="card"><div class="es"><i class="ti ti-clock-history"></i><h3>Sem historico</h3><p>As avaliacoes concluidas aparecerao aqui.</p></div></div>'; return; }
+  pc.innerHTML='<div class="fr"><input class="fi" style="max-width:180px" id="hB" placeholder="Buscar..." oninput="hFilt.b=this.value;filtHist()"><select class="fs" style="max-width:140px" onchange="hFilt.c=this.value;filtHist()"><option value="">Todos cargos</option>'+getCargos().map(function(c){ return '<option>'+c.nome+'</option>'; }).join('')+'</select><select class="fs" style="max-width:120px" onchange="hFilt.s=this.value;filtHist()"><option value="">Todos</option><option>Concluida</option><option>Em andamento</option></select><select class="fs" style="max-width:160px" onchange="hFilt.p=this.value;filtHist()"><option value="">Todos pareceres</option><option>Indicado</option><option>Parcialmente Indicado</option><option>Nao Indicado</option></select></div><div class="card" style="padding:0;overflow:hidden"><table class="table"><thead><tr><th>Colaborador</th><th>Cargo</th><th>Data</th><th>Status</th><th>Aderencia</th><th>Parecer</th><th></th></tr></thead><tbody id="tbHist">'+buildHRows(avs)+'</tbody></table></div>';
+}
+function buildHRows(list){
+  if(!list.length)return'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">Nenhum resultado</td></tr>';
+  return list.map(function(a){ return '<tr><td><b>'+a.colaborador+'</b><div style="font-size:11px;color:var(--text2)">'+(a.area||'—')+'</div></td><td>'+a.cargo+'</td><td>'+fmtDate(a.data)+'</td><td><span class="tag '+(a.status==='Concluida'?'tg':'tb')+'">'+a.status+'</span></td><td>'+(a.aderencia!=null?'<span class="tag '+adhLabel(a.aderencia).t+'">'+a.aderencia+'%</span>':'—')+'</td><td><span class="tag '+pTag(a.parecer)+'">'+(a.parecer||'—')+'</span></td><td style="white-space:nowrap"><button class="btn bs" onclick="verRel('+a.id+')"><i class="ti ti-eye"></i></button> <button class="btn bs" onclick="dupAv('+a.id+')"><i class="ti ti-copy"></i></button> <button class="btn bs bd" onclick="delAv('+a.id+')"><i class="ti ti-trash"></i></button></td></tr>'; }).join('');
+}
+function filtHist(){
+  var b=hFilt.b.toLowerCase(),c=hFilt.c,s=hFilt.s,p=hFilt.p;
+  var list=getAvaliacoes().slice().reverse().filter(function(a){
+    if(b&&!a.colaborador.toLowerCase().includes(b))return false;
+    if(c&&a.cargo!==c)return false;
+    if(s&&a.status!==s)return false;
+    if(p&&a.parecer!==p)return false;
+    return true;
+  });
+  var tb=document.getElementById('tbHist'); if(tb)tb.innerHTML=buildHRows(list);
+}
+
+// ── ADMIN ────────────────────────────────────────
+function renderAdmin(){
+  var users=getUsers();
+  document.getElementById('pgContent').innerHTML='<div class="tab-row"><div class="tab active" onclick="aTab(\'u\',this)">Usuarios</div><div class="tab" onclick="aTab(\'s\',this)">Sistema</div><div class="tab" onclick="aTab(\'l\',this)">Logs</div></div><div id="adminC"><div class="card" style="margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div class="st" style="margin:0">Usuarios</div><button class="btn bp bs" onclick="novoUser()"><i class="ti ti-user-plus"></i> Novo</button></div><table class="table"><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Status</th><th></th></tr></thead><tbody>'+users.map(function(u){ return '<tr><td><b>'+u.nome+'</b></td><td>'+u.email+'</td><td><span class="tag tb">'+u.perfil+'</span></td><td><span class="tag '+(u.ativo?'tg':'tr')+'">'+(u.ativo?'Ativo':'Inativo')+'</span></td><td><button class="btn bs" onclick="editUser('+u.id+')"><i class="ti ti-edit"></i></button></td></tr>'; }).join('')+'</tbody></table></div><div id="userForm"></div></div>';
+}
+function aTab(t,el){
+  document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); }); el.classList.add('active');
+  var ac=document.getElementById('adminC');
+  if(t==='u'){ renderAdmin(); return; }
+  if(t==='s'){
+    var avs=getAvaliacoes();
+    ac.innerHTML='<div class="g3"><div class="card"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Avaliacoes</div><div style="font-size:26px;font-weight:700;margin-top:4px">'+avs.length+'</div></div><div class="card"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Perguntas</div><div style="font-size:26px;font-weight:700;margin-top:4px">'+getPerguntas().length+'</div></div><div class="card"><div style="font-size:11px;color:var(--text2);text-transform:uppercase">Cargos</div><div style="font-size:26px;font-weight:700;margin-top:4px">'+getCargos().length+'</div></div></div><div class="card" style="margin-top:16px"><div class="st">Acoes</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="backup()"><i class="ti ti-database-export"></i> Backup JSON</button><button class="btn bd" onclick="limparAvs()"><i class="ti ti-refresh-alert"></i> Limpar avaliacoes</button></div></div>';
+    return;
+  }
+  var logs=DB.l('logs',[]);
+  ac.innerHTML=logs.length?'<div class="card" style="padding:0;overflow:hidden"><table class="table"><thead><tr><th>Data</th><th>Usuario</th><th>Acao</th></tr></thead><tbody>'+logs.slice().reverse().map(function(l){ return '<tr><td style="font-size:11px;color:var(--text3)">'+l.ts+'</td><td>'+l.user+'</td><td>'+l.msg+'</td></tr>'; }).join('')+'</tbody></table></div>':'<div class="card"><div class="es"><i class="ti ti-list"></i><h3>Sem logs</h3></div></div>';
+}
+function addLog(msg){ var logs=DB.l('logs',[]); logs.push({ts:new Date().toLocaleString('pt-BR'),user:CU?CU.nome:'Sistema',msg:msg}); if(logs.length>200)logs=logs.slice(-200); DB.s('logs',logs); }
+function novoUser(){ userEdit={id:uid(),nome:'',email:'',senha:'',perfil:'RH',av:'',ativo:true}; renderUserForm(); }
+function editUser(id){ var u=getUsers().find(function(x){ return x.id===id; }); if(u){ userEdit=JSON.parse(JSON.stringify(u)); renderUserForm(); } }
+function renderUserForm(){
+  var u=userEdit; var f=document.getElementById('userForm'); if(!f)return;
+  f.innerHTML='<div class="card"><div class="st">'+(u.nome?'Editar: '+u.nome:'Novo usuario')+'</div><div class="g2"><div class="fg"><label class="fl">Nome *</label><input class="fi" id="ufN" value="'+u.nome+'"></div><div class="fg"><label class="fl">Email *</label><input class="fi" id="ufE" type="email" value="'+u.email+'"></div></div><div class="g2"><div class="fg"><label class="fl">Senha *</label><input class="fi" id="ufS" type="password" value="'+u.senha+'"></div><div class="fg"><label class="fl">Perfil</label><select class="fs" id="ufP"><option '+(u.perfil==="Administrador"?'selected':'')+'>Administrador</option><option '+(u.perfil==="RH"?'selected':'')+'>RH</option><option '+(u.perfil==="Gestor"?'selected':'')+'>Gestor</option></select></div></div><div class="g2"><div class="fg"><label class="fl">Iniciais</label><input class="fi" id="ufA" value="'+u.av+'" maxlength="3"></div><div class="fg"><label class="fl">Status</label><select class="fs" id="ufAt"><option value="true" '+(u.ativo?'selected':'')+'>Ativo</option><option value="false" '+(!u.ativo?'selected':'')+'>Inativo</option></select></div></div><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" onclick="document.getElementById(\'userForm\').innerHTML=\'\'">Cancelar</button><button class="btn bp" onclick="saveUser()"><i class="ti ti-check"></i> Salvar</button></div></div>';
+  f.scrollIntoView({behavior:'smooth'});
+}
+function saveUser(){
+  userEdit.nome=document.getElementById('ufN').value.trim();
+  userEdit.email=document.getElementById('ufE').value.trim();
+  userEdit.senha=document.getElementById('ufS').value;
+  userEdit.perfil=document.getElementById('ufP').value;
+  userEdit.av=document.getElementById('ufA').value.trim().toUpperCase()||userEdit.nome.substring(0,2).toUpperCase();
+  userEdit.ativo=document.getElementById('ufAt').value==='true';
+  if(!userEdit.nome||!userEdit.email||!userEdit.senha){toast('Preencha todos os campos.','err');return;}
+  var users=getUsers(); var i=users.findIndex(function(x){ return x.id===userEdit.id; });
+  if(i===-1)users.push(userEdit);else users[i]=userEdit;
+  saveUsers(users); addLog('Usuario salvo: '+userEdit.nome); toast('Usuario salvo!'); renderAdmin();
+}
+function backup(){
+  var data={users:getUsers(),cargos:getCargos(),perguntas:getPerguntas(),avaliacoes:getAvaliacoes()};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='iben_backup_'+new Date().toISOString().split('T')[0]+'.json'; a.click();
+  toast('Backup exportado!');
+}
+function limparAvs(){ modal('<div style="font-size:15px;font-weight:700;margin-bottom:12px">Limpar avaliacoes</div><p style="font-size:13px;color:var(--text2)">Apagara TODAS as avaliacoes. Nao pode ser desfeito.</p>',function(){ saveAvaliacoes([]); toast('Avaliacoes removidas.'); renderAdmin(); },'Limpar',true); }
+
+// ── ENTER KEY LOGIN ──────────────────────────────
+document.getElementById('loginSenha').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+document.getElementById('loginEmail').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('loginSenha').focus(); });
+</script>
+</body>
+</html>
